@@ -19,3 +19,6 @@ cloudfunctions/**/tcb_custom_login.json
 local-server/cloudbase.local.json
 cloudbaserc.json
 .cloudbase
+
+MODELING_CHECKLIST.md
+AGENTS.md
