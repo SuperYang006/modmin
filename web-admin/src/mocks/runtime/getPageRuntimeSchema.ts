@@ -1,0 +1,185 @@
+import type { PageRuntimeSchema } from '@/types/runtime'
+
+export function getPageRuntimeSchemaMock(pageCode: string): PageRuntimeSchema {
+  return {
+    page: {
+      pageCode,
+      pageName: '文章管理',
+      pageType: 'generatedCrud',
+    },
+    collection: {
+      collectionName: 'article',
+      title: '文章管理',
+      primaryKey: '_id',
+    },
+    fields: [
+      {
+        fieldKey: 'title',
+        fieldName: 'title',
+        label: '文章标题',
+        type: 'text',
+        required: true,
+        listConfig: { visible: true, width: 260, sortOrder: 10 },
+        searchConfig: { visible: true, operator: 'like', component: 'input', sortOrder: 10 },
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'input', groupKey: 'basic', span: 24, sortOrder: 10 },
+        validationRules: [
+          { ruleType: 'required', message: '请输入文章标题' },
+          { ruleType: 'maxLength', value: 40, message: '文章标题不能超过40个字符' },
+        ],
+        detailConfig: { visible: true, groupKey: 'basic', sortOrder: 10 },
+      },
+      {
+        fieldKey: 'status',
+        fieldName: 'status',
+        label: '状态',
+        type: 'select',
+        listConfig: { visible: true, width: 120, sortOrder: 20 },
+        searchConfig: { visible: true, operator: 'eq', component: 'select', sortOrder: 20 },
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'select', groupKey: 'basic', span: 12, sortOrder: 20 },
+        validationRules: [{ ruleType: 'required', message: '请选择状态' }],
+        detailConfig: { visible: true, groupKey: 'basic', sortOrder: 20 },
+      },
+      {
+        fieldKey: 'createTime',
+        fieldName: 'createTime',
+        label: '创建时间',
+        type: 'datetime',
+        readonly: true,
+        listConfig: { visible: true, width: 180, sortOrder: 30 },
+        detailConfig: { visible: true, groupKey: 'meta', sortOrder: 10 },
+      },
+      {
+        fieldKey: 'summary',
+        fieldName: 'summary',
+        label: '摘要',
+        type: 'textarea',
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'textarea', groupKey: 'basic', span: 24, sortOrder: 30 },
+        detailConfig: { visible: true, groupKey: 'basic', sortOrder: 30 },
+      },
+      {
+        fieldKey: 'featured',
+        fieldName: 'featured',
+        label: '推荐',
+        type: 'boolean',
+        listConfig: { visible: true, width: 100, sortOrder: 40 },
+        searchConfig: { visible: true, operator: 'eq', component: 'switch', sortOrder: 30 },
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'switch', groupKey: 'meta', span: 12, sortOrder: 20 },
+        detailConfig: { visible: true, groupKey: 'meta', sortOrder: 20 },
+      },
+      {
+        fieldKey: 'coverImage',
+        fieldName: 'coverImage',
+        label: '封面图',
+        type: 'image',
+        listConfig: { visible: true, width: 140, sortOrder: 50 },
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'imageUploader', groupKey: 'basic', span: 24, sortOrder: 40 },
+        detailConfig: { visible: true, groupKey: 'basic', sortOrder: 40 },
+      },
+      {
+        fieldKey: 'attachment',
+        fieldName: 'attachment',
+        label: '附件',
+        type: 'file',
+        listConfig: { visible: true, width: 180, sortOrder: 60 },
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'fileUploader', groupKey: 'meta', span: 24, sortOrder: 30 },
+        detailConfig: { visible: true, groupKey: 'meta', sortOrder: 30 },
+      },
+      {
+        fieldKey: 'metadata',
+        fieldName: 'metadata',
+        label: '元数据',
+        type: 'json',
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'jsonEditor', groupKey: 'meta', span: 24, sortOrder: 40 },
+        detailConfig: { visible: true, groupKey: 'meta', sortOrder: 40 },
+      },
+      {
+        fieldKey: 'authorId',
+        fieldName: 'authorId',
+        label: '作者',
+        type: 'relationOne',
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'relationSelector', groupKey: 'basic', span: 12, sortOrder: 50 },
+        detailConfig: { visible: true, groupKey: 'basic', sortOrder: 50 },
+      },
+      {
+        fieldKey: 'tagIds',
+        fieldName: 'tagIds',
+        label: '标签',
+        type: 'relationMany',
+        formConfig: { visibleOnCreate: true, visibleOnEdit: true, component: 'relationSelector', groupKey: 'basic', span: 24, sortOrder: 60 },
+        detailConfig: { visible: true, groupKey: 'basic', sortOrder: 60 },
+      },
+    ],
+    dictMap: {
+      article_status: [
+        { label: '草稿', value: 'draft' },
+        { label: '已发布', value: 'published' },
+      ],
+    },
+    systemFieldSettings: {
+      searchFieldKeys: ['title', 'status', 'featured'],
+      showIdInList: true,
+      showCmsCreateTime: true,
+      showCmsUpdateTime: false,
+      defaultSortField: 'modmin_createTime',
+      defaultSortOrder: 'desc',
+    },
+    tableSchema: {
+      rowKey: '_id',
+      selection: true,
+    },
+    formSchema: {
+      mode: 'drawer',
+    },
+    detailSchema: {
+      enabled: true,
+    },
+    layoutSchema: {
+      layoutMode: 'form',
+      groups: [
+        {
+          groupKey: 'basic',
+          title: '基础信息',
+          layout: 'twoColumn',
+          sortOrder: 10,
+          fields: [
+            { fieldKey: 'title', span: 24, sortOrder: 10 },
+            { fieldKey: 'status', span: 12, sortOrder: 20 },
+            { fieldKey: 'summary', span: 24, sortOrder: 30 },
+            { fieldKey: 'coverImage', span: 24, sortOrder: 40 },
+            { fieldKey: 'authorId', span: 12, sortOrder: 50 },
+            { fieldKey: 'tagIds', span: 24, sortOrder: 60 },
+          ],
+        },
+        {
+          groupKey: 'meta',
+          title: '元信息',
+          layout: 'singleColumn',
+          sortOrder: 20,
+          fields: [
+            { fieldKey: 'createTime', span: 24, sortOrder: 10 },
+            { fieldKey: 'featured', span: 12, sortOrder: 20 },
+            { fieldKey: 'attachment', span: 24, sortOrder: 30 },
+            { fieldKey: 'metadata', span: 24, sortOrder: 40 },
+          ],
+        },
+      ],
+    },
+    actions: {
+      toolbar: [
+        { actionKey: 'create', label: '新增', actionType: 'builtin', permissionKey: 'article:create' },
+      ],
+      row: [
+        { actionKey: 'edit', label: '编辑', actionType: 'builtin', permissionKey: 'article:update' },
+        { actionKey: 'delete', label: '删除', actionType: 'builtin', permissionKey: 'article:delete', confirmText: '确认删除该记录吗' },
+      ],
+      batch: [],
+    },
+    permissions: {
+      canList: true,
+      canCreate: true,
+      canUpdate: true,
+      canDelete: true,
+      fieldPermissions: {},
+    },
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "modmin_runtime",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.18.1",
+    "jsonwebtoken": "^9.0.3"
+  }
+}

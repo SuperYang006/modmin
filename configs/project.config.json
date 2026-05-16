@@ -1,0 +1,14 @@
+{
+  "name": "modmin",
+  "frontend": {
+    "root": "web-admin",
+    "framework": "react-vite-ts"
+  },
+  "cloudfunctions": {
+    "root": "cloudfunctions"
+  },
+  "shared": {
+    "root": "shared"
+  }
+}
+

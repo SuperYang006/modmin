@@ -1,0 +1,23 @@
+{
+  "name": "modmin",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "setup": "node scripts/setup.js",
+    "tcb:login": "tcb login",
+    "deploy:prepare": "node scripts/sync-cloudfunction-shared.js && node scripts/build-cloudbaserc.js",
+    "deploy:fn": "npm run deploy:prepare && tcb fn deploy --all --force --yes",
+    "deploy:fn:single": "npm run deploy:prepare && tcb fn deploy --force --yes",
+    "build:web": "npm --prefix web-admin run build",
+    "deploy:web": "node scripts/deploy-web.js",
+    "deploy:all": "npm run deploy:fn && npm run deploy:web"
+  },
+  "devDependencies": {
+    "@cloudbase/cli": "^2.12.10",
+    "@cloudbase/node-sdk": "^3.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "vitest": "^2.1.4"
+  }
+}

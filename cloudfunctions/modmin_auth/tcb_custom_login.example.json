@@ -1,0 +1,5 @@
+{
+  "private_key_id": "your-private-key-id",
+  "private_key": "-----BEGIN RSA PRIVATE KEY-----\\n...\\n-----END RSA PRIVATE KEY-----\\n",
+  "env_id": "your-cloudbase-env-id"
+}

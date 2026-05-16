@@ -1,0 +1,6 @@
+{
+  "envId": "your-env-id",
+  "secretId": "your-secret-id",
+  "secretKey": "your-secret-key",
+  "jwtSecret": "请生成至少32字符的随机串，例如使用：openssl rand -hex 32"
+}
