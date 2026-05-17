@@ -43,6 +43,7 @@ export function GeneratedCrudPage() {
   const [initialFormValues, setInitialFormValues] = useState<Record<string, unknown>>({})
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [formSubmitError, setFormSubmitError] = useState('')
+  const [formSubmitting, setFormSubmitting] = useState(false)
   const [detailRecord, setDetailRecord] = useState<Record<string, unknown> | null>(null)
   const [detailLoadingId, setDetailLoadingId] = useState('')
   const [editLoadingId, setEditLoadingId] = useState('')
@@ -908,7 +909,7 @@ export function GeneratedCrudPage() {
   }
 
   async function submitForm() {
-    if (!schema) {
+    if (!schema || formSubmitting) {
       return
     }
 
@@ -928,39 +929,42 @@ export function GeneratedCrudPage() {
 
     const collectionName = String(schema.collection.collectionName)
     const submittedRecord = buildSubmittedRecord(activeFields, formValues, initialFormValues, formMode)
-    let response
+    setFormSubmitting(true)
 
-    if (formMode === 'create') {
-      response = await createCrudRecord({
-        collectionName,
-        record: submittedRecord,
-      })
-    } else {
-      response = await updateCrudRecord({
-        collectionName,
-        id: currentRecordId,
-        record: submittedRecord,
-      })
-    }
+    try {
+      const response =
+        formMode === 'create'
+          ? await createCrudRecord({
+              collectionName,
+              record: submittedRecord,
+            })
+          : await updateCrudRecord({
+              collectionName,
+              id: currentRecordId,
+              record: submittedRecord,
+            })
 
-    if (response.code !== 0) {
-      const fieldKey = (response.data as { fieldKey?: string } | null)?.fieldKey
+      if (response.code !== 0) {
+        const fieldKey = (response.data as { fieldKey?: string } | null)?.fieldKey
 
-      if (fieldKey) {
-        setFormErrors((prev) => ({
-          ...prev,
-          [fieldKey]: response.message || '字段校验失败',
-        }))
-      } else {
-        const errorMsg = response.message || '保存失败'
-        setFormSubmitError(errorMsg)
-        void message.error(errorMsg)
+        if (fieldKey) {
+          setFormErrors((prev) => ({
+            ...prev,
+            [fieldKey]: response.message || '字段校验失败',
+          }))
+        } else {
+          const errorMsg = response.message || '保存失败'
+          setFormSubmitError(errorMsg)
+          void message.error(errorMsg)
+        }
+        return
       }
-      return
-    }
 
-    setFormVisible(false)
-    await refreshList(schema)
+      setFormVisible(false)
+      await refreshList(schema)
+    } finally {
+      setFormSubmitting(false)
+    }
   }
 
   async function handleDelete(id: string) {
@@ -1128,7 +1132,12 @@ export function GeneratedCrudPage() {
         values={formValues}
         errors={formErrors}
         submitError={formSubmitError}
-        onClose={() => setFormVisible(false)}
+        submitting={formSubmitting}
+        onClose={() => {
+          if (!formSubmitting) {
+            setFormVisible(false)
+          }
+        }}
         onChange={(fieldKey, value) => {
           setFormValues((prev) => ({
             ...prev,

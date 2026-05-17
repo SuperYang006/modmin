@@ -11,13 +11,14 @@ interface RuntimeRecordFormProps {
   values: Record<string, unknown>
   errors: Record<string, string>
   submitError?: string
+  submitting?: boolean
   onClose: () => void
   onChange: (fieldKey: string, value: string) => void
   onSubmit: () => void
 }
 
 export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
-  const { visible, mode, fields, dictMap, collectionName, values, errors, submitError, onClose, onChange, onSubmit } = props
+  const { visible, mode, fields, dictMap, collectionName, values, errors, submitError, submitting = false, onClose, onChange, onSubmit } = props
   const systemFields = fields.filter((field) => isSystemReservedField(field.fieldKey))
   const businessFields = fields.filter((field) => !isSystemReservedField(field.fieldKey))
   const errorEntries = Object.entries(errors).filter(([, message]) => Boolean(message))
@@ -41,6 +42,8 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
         </div>
       }
       onClose={onClose}
+      maskClosable={!submitting}
+      keyboard={!submitting}
       width={760}
       destroyOnClose
       placement="right"
@@ -73,11 +76,11 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
                 定位错误
               </Button>
             ) : null}
-            <Button onClick={onClose}>
+            <Button onClick={onClose} disabled={submitting}>
               取消
             </Button>
-            <Button type="primary" onClick={onSubmit}>
-              保存
+            <Button type="primary" onClick={onSubmit} loading={submitting} disabled={submitting}>
+              {submitting ? '保存中' : '保存'}
             </Button>
           </Space>
         </div>
@@ -105,7 +108,7 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
             </div>
           ) : null}
           <Row gutter={[0, 12]}>
-            {businessFields.map((field) => renderFieldItem(field, mode, values, dictMap, collectionName, errors, onChange))}
+            {businessFields.map((field) => renderFieldItem(field, mode, values, dictMap, collectionName, errors, onChange, false, submitting))}
           </Row>
         </Form>
       </div>
@@ -122,10 +125,12 @@ function renderFieldItem(
   errors: Record<string, string>,
   onChange: (fieldKey: string, value: string) => void,
   compact = false,
+  submitting = false,
 ) {
-  const readonly =
+  const configuredReadonly =
     field.readonly === true ||
     (mode === 'create' ? field.formConfig?.readonlyOnCreate === true : field.formConfig?.readonlyOnEdit === true)
+  const readonly = submitting || configuredReadonly
   const itemCountTag = !compact ? buildItemCountTagText(field) : ''
   const fileSizeTag = !compact ? buildFileSizeTagText(field) : ''
 
@@ -151,7 +156,7 @@ function renderFieldItem(
         {fileSizeTag ? <Tag color="processing" bordered={false}>{fileSizeTag}</Tag> : null}
         {!compact ? renderFormFieldTitleAction(field, values[field.fieldKey] ?? '') : null}
         {!compact && isSystemReservedField(field.fieldKey) ? <Tag color="default">系统保留</Tag> : null}
-        {readonly ? <Tag color="blue">{compact ? '只读' : '不可编辑'}</Tag> : null}
+        {configuredReadonly ? <Tag color="blue">{compact ? '只读' : '不可编辑'}</Tag> : null}
       </div>
       <Form.Item
         required={field.required === true}
