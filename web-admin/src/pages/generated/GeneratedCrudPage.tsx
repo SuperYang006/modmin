@@ -660,6 +660,10 @@ export function GeneratedCrudPage() {
           }
         }
 
+        if (!value.trim() && ['minLength', 'maxLength'].includes(rule.ruleType)) {
+          continue
+        }
+
         if (rule.ruleType === 'maxLength' && typeof rule.value === 'number' && value.length > rule.value) {
           nextErrors[field.fieldKey] = rule.message
           break
@@ -713,9 +717,23 @@ export function GeneratedCrudPage() {
         continue
       }
 
-      if (field.type === 'number' && Number.isNaN(Number(value))) {
-        nextErrors[field.fieldKey] = `${field.label} 必须是数字`
-        continue
+      if (field.type === 'number') {
+        const numericValue = typeof rawValue === 'number' ? rawValue : Number(value)
+
+        if (Number.isNaN(numericValue)) {
+          nextErrors[field.fieldKey] = `${field.label} 必须是数字`
+          continue
+        }
+
+        if (typeof field.minValue === 'number' && numericValue < field.minValue) {
+          nextErrors[field.fieldKey] = `${field.label} 不能小于 ${field.minValue}`
+          continue
+        }
+
+        if (typeof field.maxValue === 'number' && numericValue > field.maxValue) {
+          nextErrors[field.fieldKey] = `${field.label} 不能大于 ${field.maxValue}`
+          continue
+        }
       }
 
       if (field.type === 'boolean' && value !== 'true' && value !== 'false') {
@@ -723,7 +741,7 @@ export function GeneratedCrudPage() {
         continue
       }
 
-      if ((field.type === 'date' || field.type === 'datetime') && Number.isNaN(new Date(value).getTime())) {
+      if ((field.type === 'date' || field.type === 'datetime') && !dayjs(value).isValid()) {
         nextErrors[field.fieldKey] = `${field.label} 必须是合法日期`
         continue
       }
