@@ -1,4 +1,5 @@
-import { getRichTextPlainText, sanitizeRichTextHtml } from '@/runtime/richtext/html'
+import { useResolvedRichTextHtml } from '@/runtime/richtext/assets'
+import { getRichTextPlainText, hasRichTextContent } from '@/runtime/richtext/html'
 
 interface RichTextViewerProps {
   value: unknown
@@ -11,21 +12,21 @@ function truncateText(value: string, maxLength = 80) {
 
 export function RichTextViewer(props: RichTextViewerProps) {
   const plainText = getRichTextPlainText(props.value)
+  const resolvedHtml = useResolvedRichTextHtml(props.value)
 
-  if (!plainText) {
+  if (!hasRichTextContent(props.value)) {
     return <span>-</span>
   }
 
   if (props.mode === 'table') {
-    const text = truncateText(plainText)
-    return <span title={plainText}>{text}</span>
+    const text = plainText ? truncateText(plainText) : '[图片]'
+    return <span title={plainText || text}>{text}</span>
   }
 
   return (
     <div
       className="runtime-richtext-viewer"
-      dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(props.value) }}
+      dangerouslySetInnerHTML={{ __html: resolvedHtml }}
     />
   )
 }
-

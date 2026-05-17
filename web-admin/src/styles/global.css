@@ -3220,7 +3220,7 @@ a {
   border: 1px solid #c8d7e1;
   border-radius: 12px;
   background: #fff;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .runtime-richtext-editor.is-disabled {
@@ -3238,7 +3238,22 @@ a {
   left: 8px !important;
   right: auto !important;
   bottom: auto !important;
+  max-height: min(520px, calc(100vh - 180px));
+  overflow-y: auto;
   z-index: 20;
+}
+
+.runtime-richtext-image-modal-help {
+  box-sizing: border-box;
+  max-width: calc(100% - 36px);
+  margin: 0 36px 12px 0;
+  padding: 8px 10px;
+  border: 1px solid #d7e3ee;
+  border-radius: 8px;
+  background: #f5f8fb;
+  color: #52606d;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .runtime-richtext-editable {
@@ -3248,7 +3263,7 @@ a {
 .runtime-richtext-editable .w-e-text-container {
   height: 320px !important;
   min-height: 320px !important;
-  overflow: hidden;
+  overflow: visible;
   overscroll-behavior: contain;
 }
 
@@ -3256,6 +3271,13 @@ a {
   height: 320px;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.runtime-richtext-editable img,
+.runtime-richtext-viewer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
 }
 
 .runtime-richtext-editable .w-e-text-placeholder {

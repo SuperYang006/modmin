@@ -819,6 +819,8 @@ function richtextFormRenderer(props: FormRendererProps) {
       <RichTextEditor
         value={typeof props.value === 'string' ? props.value : ''}
         disabled={props.field.readonly === true}
+        collectionName={props.collectionName}
+        fieldKey={props.field.fieldKey}
         onChange={props.onChange}
       />
       {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}

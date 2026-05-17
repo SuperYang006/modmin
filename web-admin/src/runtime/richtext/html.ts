@@ -12,6 +12,7 @@ const ALLOWED_TAGS = new Set([
   'h4',
   'hr',
   'i',
+  'img',
   'li',
   'ol',
   'p',
@@ -29,11 +30,40 @@ const ALLOWED_TAGS = new Set([
   'ul',
 ])
 
-const ALLOWED_ATTRIBUTES = new Set(['href', 'target', 'rel', 'colspan', 'rowspan', 'style'])
+const ALLOWED_ATTRIBUTES = new Set([
+  'alt',
+  'colspan',
+  'data-modmin-content-type',
+  'data-modmin-file-id',
+  'data-modmin-full-path',
+  'data-modmin-name',
+  'data-modmin-path',
+  'data-modmin-size',
+  'height',
+  'href',
+  'loading',
+  'rel',
+  'rowspan',
+  'src',
+  'style',
+  'target',
+  'title',
+  'width',
+])
 
 function isSafeHref(value: string) {
   const trimmed = value.trim().toLowerCase()
   return trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('mailto:')
+}
+
+function isSafeImageSrc(value: string) {
+  const trimmed = value.trim().toLowerCase()
+  return (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('blob:') ||
+    trimmed.startsWith('cloud://')
+  )
 }
 
 function isSafeColorValue(value: string) {
@@ -44,7 +74,12 @@ function isSafeColorValue(value: string) {
   )
 }
 
-function sanitizeStyleAttribute(value: string) {
+function isSafeCssSizeValue(value: string) {
+  const trimmed = value.trim().toLowerCase()
+  return trimmed === 'auto' || /^\d{1,4}(\.\d{1,2})?(%|px)?$/.test(trimmed)
+}
+
+function sanitizeStyleAttribute(value: string, tagName: string) {
   const declarations = value
     .split(';')
     .map((item) => item.trim())
@@ -60,10 +95,39 @@ function sanitizeStyleAttribute(value: string) {
 
     if ((property === 'color' || property === 'background-color') && isSafeColorValue(propertyValue)) {
       safeDeclarations.push(`${property}: ${propertyValue}`)
+      continue
+    }
+
+    if (
+      tagName === 'img' &&
+      (property === 'width' || property === 'height' || property === 'max-width') &&
+      isSafeCssSizeValue(propertyValue)
+    ) {
+      safeDeclarations.push(`${property}: ${propertyValue}`)
     }
   }
 
   return safeDeclarations.join('; ')
+}
+
+function isSafeDimension(value: string) {
+  return /^\d{1,4}(%|px)?$/.test(value.trim())
+}
+
+function isSafeDataAttribute(attributeName: string, value: string) {
+  if (attributeName === 'data-modmin-size') {
+    return value === '' || /^\d+$/.test(value)
+  }
+
+  if (attributeName === 'data-modmin-content-type') {
+    return value === '' || value.startsWith('image/')
+  }
+
+  if (attributeName === 'data-modmin-file-id' || attributeName === 'data-modmin-full-path') {
+    return value === '' || isSafeImageSrc(value)
+  }
+
+  return !/[<>"'`]/.test(value)
 }
 
 function sanitizeNode(node: Node) {
@@ -98,8 +162,27 @@ function sanitizeNode(node: Node) {
       continue
     }
 
+    if ((attributeName === 'href' || attributeName === 'target' || attributeName === 'rel') && tagName !== 'a') {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (
+      (attributeName === 'src' ||
+        attributeName === 'alt' ||
+        attributeName === 'title' ||
+        attributeName === 'width' ||
+        attributeName === 'height' ||
+        attributeName === 'loading' ||
+        attributeName.startsWith('data-modmin-')) &&
+      tagName !== 'img'
+    ) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
     if (attributeName === 'style') {
-      const safeStyle = sanitizeStyleAttribute(attribute.value)
+      const safeStyle = sanitizeStyleAttribute(attribute.value, tagName)
       if (safeStyle) {
         element.setAttribute('style', safeStyle)
       } else {
@@ -110,12 +193,36 @@ function sanitizeNode(node: Node) {
 
     if (attributeName === 'href' && !isSafeHref(attribute.value)) {
       element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'src' && !isSafeImageSrc(attribute.value)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if ((attributeName === 'width' || attributeName === 'height') && !isSafeDimension(attribute.value)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'loading' && !['lazy', 'eager'].includes(attribute.value)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName.startsWith('data-modmin-') && !isSafeDataAttribute(attributeName, attribute.value)) {
+      element.removeAttribute(attribute.name)
     }
   }
 
   if (tagName === 'a' && element.getAttribute('href')) {
     element.setAttribute('target', '_blank')
     element.setAttribute('rel', 'noopener noreferrer')
+  }
+
+  if (tagName === 'img') {
+    element.setAttribute('loading', element.getAttribute('loading') || 'lazy')
   }
 }
 
@@ -142,6 +249,29 @@ export function sanitizeRichTextHtml(value: unknown) {
   return template.innerHTML
 }
 
+export function serializeRichTextHtmlForStorage(value: unknown) {
+  if (typeof document === 'undefined') {
+    return typeof value === 'string' ? value : ''
+  }
+
+  const template = document.createElement('template')
+  template.innerHTML = sanitizeRichTextHtml(value)
+
+  for (const image of Array.from(template.content.querySelectorAll('img'))) {
+    const stableSrc =
+      image.getAttribute('data-modmin-file-id') ||
+      image.getAttribute('data-modmin-full-path') ||
+      image.getAttribute('src') ||
+      ''
+
+    if (stableSrc && isSafeImageSrc(stableSrc)) {
+      image.setAttribute('src', stableSrc)
+    }
+  }
+
+  return template.innerHTML
+}
+
 export function getRichTextPlainText(value: unknown) {
   if (typeof document === 'undefined') {
     return typeof value === 'string' ? value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : ''
@@ -150,4 +280,22 @@ export function getRichTextPlainText(value: unknown) {
   const template = document.createElement('template')
   template.innerHTML = sanitizeRichTextHtml(value)
   return (template.content.textContent || '').replace(/\s+/g, ' ').trim()
+}
+
+export function hasRichTextContent(value: unknown) {
+  if (getRichTextPlainText(value)) {
+    return true
+  }
+
+  if (typeof document === 'undefined') {
+    return typeof value === 'string' && /<img\b/i.test(value)
+  }
+
+  const template = document.createElement('template')
+  template.innerHTML = sanitizeRichTextHtml(value)
+  return Boolean(
+    template.content.querySelector(
+      'img[src], img[data-modmin-file-id], img[data-modmin-full-path], img[data-modmin-path]',
+    ),
+  )
 }
