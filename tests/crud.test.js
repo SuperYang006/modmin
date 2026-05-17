@@ -155,6 +155,57 @@ describe('modmin_crud', () => {
       expect(res.code).toBe(40002)
     })
 
+    it('keeps 10-digit timestamp values for datetime timestamp fields', async () => {
+      seed({
+        collectionFields: [
+          { fieldKey: 'title', label: '标题', type: 'text', required: true },
+          { fieldKey: 'publishedAt', label: '发布时间', type: 'datetime', dateStorageFormat: 'timestamp' },
+        ],
+      })
+
+      const res = await call(fn, 'create', {
+        token: TOKEN_SUPER_ADMIN(),
+        data: { collectionName: BUSINESS, record: { title: 'foo', publishedAt: 1715587200 } },
+      })
+
+      expect(res.code).toBe(0)
+      expect(getDocs(BUSINESS)[0].publishedAt).toBe(1715587200)
+    })
+
+    it('keeps 10-digit timestamp values for date timestamp fields', async () => {
+      seed({
+        collectionFields: [
+          { fieldKey: 'title', label: '标题', type: 'text', required: true },
+          { fieldKey: 'publishDate', label: '发布日期', type: 'date', dateStorageFormat: 'timestamp' },
+        ],
+      })
+
+      const res = await call(fn, 'create', {
+        token: TOKEN_SUPER_ADMIN(),
+        data: { collectionName: BUSINESS, record: { title: 'foo', publishDate: 1715587200 } },
+      })
+
+      expect(res.code).toBe(0)
+      expect(getDocs(BUSINESS)[0].publishDate).toBe(1715587200)
+    })
+
+    it('stores datetime string fields as local date time text', async () => {
+      seed({
+        collectionFields: [
+          { fieldKey: 'title', label: '标题', type: 'text', required: true },
+          { fieldKey: 'publishedAt', label: '发布时间', type: 'datetime', dateStorageFormat: 'string' },
+        ],
+      })
+
+      const res = await call(fn, 'create', {
+        token: TOKEN_SUPER_ADMIN(),
+        data: { collectionName: BUSINESS, record: { title: 'foo', publishedAt: '2026-05-17 09:44:03' } },
+      })
+
+      expect(res.code).toBe(0)
+      expect(getDocs(BUSINESS)[0].publishedAt).toBe('2026-05-17 09:44:03')
+    })
+
     it('rejects missing multi asset field when minItems is required', async () => {
       seed({
         collectionFields: [

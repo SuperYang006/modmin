@@ -138,7 +138,30 @@ export function GeneratedCrudPage() {
       return rawValue
     }
 
-    const parsed = dayjs(String(rawValue))
+    let parsed: dayjs.Dayjs
+
+    if (typeof rawValue === 'number') {
+      parsed =
+        field.dateStorageFormat === 'timestamp'
+          ? dayjs(rawValue * 1000)
+          : field.dateStorageFormat === 'timestampMs'
+            ? dayjs(rawValue)
+            : dayjs(rawValue < 1e11 ? rawValue * 1000 : rawValue)
+    } else {
+      const text = String(rawValue).trim()
+
+      if (/^\d+$/.test(text)) {
+        const numericValue = Number(text)
+        parsed =
+          field.dateStorageFormat === 'timestamp'
+            ? dayjs(numericValue * 1000)
+            : field.dateStorageFormat === 'timestampMs'
+              ? dayjs(numericValue)
+              : dayjs(text.length <= 10 || numericValue < 1e11 ? numericValue * 1000 : numericValue)
+      } else {
+        parsed = dayjs(text)
+      }
+    }
 
     if (!parsed.isValid()) {
       return rawValue
@@ -165,7 +188,7 @@ export function GeneratedCrudPage() {
       return resolved.format('YYYY-MM-DD')
     }
 
-    return resolved.toISOString()
+    return resolved.format('YYYY-MM-DD HH:mm:ss')
   }
 
   function toSearchBoundaryValue(field: RuntimeField, rawValue: string, boundary: 'start' | 'end') {

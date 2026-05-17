@@ -67,12 +67,68 @@ function formatDateFieldValue(field, nextDate) {
   return valueToIsoString(field.type, nextDate)
 }
 
+function parseDateFieldValue(field, value) {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return new Date(value.getTime())
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const time =
+      field?.dateStorageFormat === 'timestamp'
+        ? value * 1000
+        : field?.dateStorageFormat === 'timestampMs'
+          ? value
+          : value < 1e11
+            ? value * 1000
+            : value
+    const date = new Date(time)
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const trimmed = value.trim()
+
+  if (!trimmed) {
+    return null
+  }
+
+  if (/^\d+$/.test(trimmed)) {
+    const numericValue = Number(trimmed)
+    if (!Number.isFinite(numericValue)) {
+      return null
+    }
+    const time =
+      field?.dateStorageFormat === 'timestamp'
+        ? numericValue * 1000
+        : field?.dateStorageFormat === 'timestampMs'
+          ? numericValue
+          : trimmed.length <= 10 || numericValue < 1e11
+            ? numericValue * 1000
+            : numericValue
+    const date = new Date(time)
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  const date = new Date(trimmed)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 function valueToIsoString(type, date) {
   if (type === 'date') {
     return date.toISOString().slice(0, 10)
   }
 
-  return date.toISOString()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
 
 function parseAssetValue(value) {
@@ -750,8 +806,8 @@ function validateMultiPolyRelationField(field, value) {
 }
 
 function validateDateField(field, value) {
-  const nextDate = new Date(value)
-  if (Number.isNaN(nextDate.getTime())) {
+  const nextDate = parseDateFieldValue(field, value)
+  if (!nextDate) {
     return fieldError(field, `${getFieldLabel(field)} 必须是合法日期`)
   }
   return { ok: true, value: formatDateFieldValue(field, nextDate) }

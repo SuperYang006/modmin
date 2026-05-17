@@ -469,6 +469,32 @@ function getSinglePickerValue(
   return parsed.isValid() ? parsed : null
 }
 
+function serializeSinglePickerValue(
+  value: dayjs.Dayjs | null,
+  type: 'date' | 'datetime',
+  storageFormat: RuntimeField['dateStorageFormat'] = 'string',
+) {
+  if (!value) {
+    return ''
+  }
+
+  const resolved = type === 'date' ? value.startOf('day') : value
+
+  if (storageFormat === 'timestamp') {
+    return resolved.unix()
+  }
+
+  if (storageFormat === 'timestampMs') {
+    return resolved.valueOf()
+  }
+
+  if (type === 'date') {
+    return resolved.format('YYYY-MM-DD')
+  }
+
+  return resolved.format('YYYY-MM-DD HH:mm:ss')
+}
+
 function formatDisplayText(value: unknown) {
   if (value === null || value === undefined || value === '') {
     return '-'
@@ -550,8 +576,8 @@ function datetimeSearchRenderer(props: SearchRendererProps) {
         getPopupContainer={getSearchPickerPopupContainer}
         onChange={(dates) =>
           props.onChange({
-            start: dates?.[0] ? dates[0].format('YYYY-MM-DDTHH:mm:ss') : '',
-            end: dates?.[1] ? dates[1].format('YYYY-MM-DDTHH:mm:ss') : '',
+            start: dates?.[0] ? dates[0].format('YYYY-MM-DD HH:mm:ss') : '',
+            end: dates?.[1] ? dates[1].format('YYYY-MM-DD HH:mm:ss') : '',
           })
         }
       />
@@ -741,7 +767,7 @@ function dateFormRenderer(props: FormRendererProps) {
         disabled={props.field.readonly === true}
         placement="bottomLeft"
         getPopupContainer={getSelectPopupContainer}
-        onChange={(date) => props.onChange(date ? date.format('YYYY-MM-DD') : '')}
+        onChange={(date) => props.onChange(serializeSinglePickerValue(date, 'date', props.field.dateStorageFormat))}
       />
       {props.field.description ? <em className="field-help-text">{props.field.description}</em> : null}
     </label>
@@ -761,7 +787,7 @@ function datetimeFormRenderer(props: FormRendererProps) {
         disabled={props.field.readonly === true}
         placement="bottomLeft"
         getPopupContainer={getSelectPopupContainer}
-        onChange={(date) => props.onChange(date ? date.format('YYYY-MM-DDTHH:mm:ss') : '')}
+        onChange={(date) => props.onChange(serializeSinglePickerValue(date, 'datetime', props.field.dateStorageFormat))}
       />
       {props.field.description ? <em className="field-help-text">{props.field.description}</em> : null}
     </label>
