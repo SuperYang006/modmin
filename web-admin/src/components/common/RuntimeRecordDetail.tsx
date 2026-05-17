@@ -230,7 +230,16 @@ function renderDetailFieldValue(
     )
   }
 
-  if (field.type === 'textarea' || field.type === 'richtext' || field.type === 'markdown') {
+  if (field.type === 'richtext') {
+    return renderDisplayField({
+      field,
+      value,
+      dictMap,
+      mode: 'detail',
+    })
+  }
+
+  if (field.type === 'textarea' || field.type === 'markdown') {
     const text = typeof value === 'string' ? value : String(value)
 
     return (

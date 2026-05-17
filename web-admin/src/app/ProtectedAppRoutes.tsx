@@ -4,6 +4,7 @@ import { AuthGuard } from '@/components/auth/AuthGuard'
 import { AdminLayout } from '@/components/layout/AdminLayout'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { GeneratedCrudPage } from '@/pages/generated/GeneratedCrudPage'
+import { GeneratedCrudFormPage } from '@/pages/generated/GeneratedCrudFormPage'
 import { ConfigPage } from '@/pages/config/ConfigPage'
 import { ModelCreatePage } from '@/pages/config/ModelCreatePage'
 import { ModelEditPage } from '@/pages/config/ModelEditPage'
@@ -70,6 +71,8 @@ export default function ProtectedAppRoutes() {
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="no-access" element={<NoAccessPage />} />
         <Route path="generated/:pageCode" element={<GeneratedCrudPage />} />
+        <Route path="generated/:pageCode/create" element={<GeneratedCrudFormPage />} />
+        <Route path="generated/:pageCode/:recordId/edit" element={<GeneratedCrudFormPage />} />
         <Route path="config/models" element={<SuperAdminGuard><ConfigPage /></SuperAdminGuard>} />
         <Route path="config/models/create" element={<SuperAdminGuard><ModelCreatePage /></SuperAdminGuard>} />
         <Route path="config/models/:collectionName/edit" element={<SuperAdminGuard><ModelEditPage /></SuperAdminGuard>} />

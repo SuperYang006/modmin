@@ -40,8 +40,12 @@ function getDefaultSearchComponent(type: string) {
 }
 
 function getDefaultFormComponent(type: string) {
-  if (type === 'textarea' || type === 'richtext' || type === 'markdown') {
+  if (type === 'textarea' || type === 'markdown') {
     return 'textarea'
+  }
+
+  if (type === 'richtext') {
+    return 'richtext'
   }
 
   if (type === 'number') {

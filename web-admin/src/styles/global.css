@@ -2677,6 +2677,48 @@ a {
   min-height: 100%;
 }
 
+.runtime-record-form-page .runtime-record-form-body {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding: 0;
+}
+
+.runtime-record-form-page .runtime-record-form-drawer-footer {
+  margin: 18px -24px -24px;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 14px 14px;
+  background: #fff;
+}
+
+.generated-form-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.generated-form-page-card.ant-card {
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.generated-form-system-card.ant-card {
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.generated-form-system-card .ant-card-body {
+  padding: 16px 18px 18px;
+}
+
+.generated-form-system-card .runtime-record-form-system-head {
+  margin-bottom: 12px;
+}
+
+.generated-form-page-card .ant-card-body {
+  padding: 24px;
+}
+
 .field-help-text {
   color: #8aa0b2;
   font-size: 12px;
@@ -3171,6 +3213,95 @@ a {
   min-height: 96px;
   padding: 12px;
   resize: vertical;
+}
+
+.runtime-richtext-editor {
+  position: relative;
+  border: 1px solid #c8d7e1;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.runtime-richtext-editor.is-disabled {
+  background: #f5f7fa;
+}
+
+.runtime-richtext-toolbar {
+  position: relative;
+  border-bottom: 1px solid #e4ebf2;
+  background: #f8fafc;
+}
+
+.runtime-richtext-editor .w-e-modal {
+  top: 40px !important;
+  left: 8px !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 20;
+}
+
+.runtime-richtext-editable {
+  height: 320px;
+}
+
+.runtime-richtext-editable .w-e-text-container {
+  height: 320px !important;
+  min-height: 320px !important;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.runtime-richtext-editable .w-e-scroll {
+  height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.runtime-richtext-editable .w-e-text-placeholder {
+  color: #9aa6b2;
+  font-style: normal;
+}
+
+.runtime-richtext-viewer {
+  color: #1f2a37;
+  line-height: 1.75;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.runtime-richtext-viewer p {
+  margin: 0 0 10px;
+}
+
+.runtime-richtext-viewer p:last-child {
+  margin-bottom: 0;
+}
+
+.runtime-richtext-viewer ul,
+.runtime-richtext-viewer ol {
+  margin: 0 0 10px 20px;
+  padding: 0;
+}
+
+.runtime-richtext-viewer blockquote {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #b6c7d8;
+  background: #f6f8fb;
+  color: #52606d;
+}
+
+.runtime-richtext-viewer table {
+  width: 100%;
+  margin: 10px 0;
+  border-collapse: collapse;
+}
+
+.runtime-richtext-viewer th,
+.runtime-richtext-viewer td {
+  padding: 8px 10px;
+  border: 1px solid #d8e2ec;
 }
 
 .runtime-multiselect {

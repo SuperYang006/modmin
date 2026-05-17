@@ -6,6 +6,8 @@ import type { RcFile, UploadFile } from 'antd/es/upload/interface'
 import type { DictOption, RuntimeField } from '@/types/runtime'
 import { getFieldTypeDefinition } from '@/runtime/fieldTypes/registry'
 import { RelationDetailTrigger } from '@/components/common/RelationDetailTrigger'
+import { RichTextEditor } from '@/components/common/RichTextEditor'
+import { RichTextViewer } from '@/components/common/RichTextViewer'
 import {
   buildMultiPolyRelationDetailRecords,
   buildRelationManyDetailRecords,
@@ -342,6 +344,15 @@ function buildLengthHelpText(field: RuntimeField) {
   return `最多 ${maxLength} 个字符`
 }
 
+function getLengthRange(field: RuntimeField) {
+  const minRule = field.validationRules?.find((rule) => rule.ruleType === 'minLength' && typeof rule.value === 'number')
+  const maxRule = field.validationRules?.find((rule) => rule.ruleType === 'maxLength' && typeof rule.value === 'number')
+  return {
+    minLength: typeof field.minLength === 'number' ? field.minLength : typeof minRule?.value === 'number' ? minRule.value : undefined,
+    maxLength: typeof field.maxLength === 'number' ? field.maxLength : typeof maxRule?.value === 'number' ? maxRule.value : undefined,
+  }
+}
+
 function buildNumberRangeHelpText(field: RuntimeField) {
   const minRule = field.validationRules?.find((rule) => rule.ruleType === 'minValue' && typeof rule.value === 'number')
   const maxRule = field.validationRules?.find((rule) => rule.ruleType === 'maxValue' && typeof rule.value === 'number')
@@ -361,6 +372,15 @@ function buildNumberRangeHelpText(field: RuntimeField) {
   }
 
   return `不能大于 ${maxValue}`
+}
+
+function getNumberRange(field: RuntimeField) {
+  const minRule = field.validationRules?.find((rule) => rule.ruleType === 'minValue' && typeof rule.value === 'number')
+  const maxRule = field.validationRules?.find((rule) => rule.ruleType === 'maxValue' && typeof rule.value === 'number')
+  return {
+    min: typeof field.minValue === 'number' ? field.minValue : typeof minRule?.value === 'number' ? minRule.value : undefined,
+    max: typeof field.maxValue === 'number' ? field.maxValue : typeof maxRule?.value === 'number' ? maxRule.value : undefined,
+  }
 }
 
 function renderFieldHelpText(field: RuntimeField, extraText = '') {
@@ -428,6 +448,7 @@ function renderInputField(field: RuntimeField, value: unknown, onChange: (value:
       : typeof value === 'number' && Number.isFinite(value)
         ? String(value)
         : ''
+  const numberRange = type === 'number' ? getNumberRange(field) : { min: undefined, max: undefined }
 
   return (
     <label key={field.fieldKey} className="field-stack">
@@ -435,8 +456,8 @@ function renderInputField(field: RuntimeField, value: unknown, onChange: (value:
       <input
         type={type}
         value={normalizedValue}
-        min={type === 'number' && typeof field.minValue === 'number' ? field.minValue : undefined}
-        max={type === 'number' && typeof field.maxValue === 'number' ? field.maxValue : undefined}
+        min={numberRange.min}
+        max={numberRange.max}
         disabled={field.readonly === true}
         onChange={(event) => onChange(event.target.value)}
       />
@@ -773,17 +794,35 @@ function numberFormRenderer(props: FormRendererProps) {
 }
 
 function textareaFormRenderer(props: FormRendererProps) {
+  const lengthRange = getLengthRange(props.field)
+
   return (
     <label key={props.field.fieldKey} className="field-stack">
       <span>{props.field.label}</span>
       <textarea
         className="runtime-textarea"
         value={props.value}
+        minLength={lengthRange.minLength}
+        maxLength={lengthRange.maxLength}
         disabled={props.field.readonly === true}
         onChange={(event) => props.onChange(event.target.value)}
       />
       {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}
     </label>
+  )
+}
+
+function richtextFormRenderer(props: FormRendererProps) {
+  return (
+    <div key={props.field.fieldKey} className="field-stack">
+      <span>{props.field.label}</span>
+      <RichTextEditor
+        value={typeof props.value === 'string' ? props.value : ''}
+        disabled={props.field.readonly === true}
+        onChange={props.onChange}
+      />
+      {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}
+    </div>
   )
 }
 
@@ -1756,6 +1795,10 @@ function defaultDisplayRenderer(props: DisplayRendererProps) {
   return <span title={text === '-' ? undefined : text}>{truncateDisplayText(text)}</span>
 }
 
+function richtextDisplayRenderer(props: DisplayRendererProps) {
+  return <RichTextViewer value={props.value} mode={props.mode} />
+}
+
 function formatDateDisplayValue(value: unknown, type: 'date' | 'datetime', storageFormat?: RuntimeField['dateStorageFormat']) {
   if (value === null || value === undefined || value === '') {
     return '-'
@@ -2350,7 +2393,7 @@ export const componentRegistry = {
   form: {
     text: textFormRenderer,
     textarea: textareaFormRenderer,
-    richtext: textareaFormRenderer,
+    richtext: richtextFormRenderer,
     markdown: textareaFormRenderer,
     number: numberFormRenderer,
     numberInput: numberFormRenderer,
@@ -2378,7 +2421,7 @@ export const componentRegistry = {
   display: {
     text: defaultDisplayRenderer,
     textarea: defaultDisplayRenderer,
-    richtext: defaultDisplayRenderer,
+    richtext: richtextDisplayRenderer,
     markdown: defaultDisplayRenderer,
     number: defaultDisplayRenderer,
     amount: defaultDisplayRenderer,

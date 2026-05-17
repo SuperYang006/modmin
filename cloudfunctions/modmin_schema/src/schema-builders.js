@@ -84,6 +84,7 @@ function createSchemaBuilders(deps) {
     const renderer = getFieldMeta(type)?.formRenderer
 
     if (renderer === 'textarea') return 'textarea'
+    if (renderer === 'richtext') return 'richtext'
     if (type === 'number') return 'numberInput'
     if (renderer === 'boolean') return 'switch'
     if (renderer === 'date') return 'datePicker'

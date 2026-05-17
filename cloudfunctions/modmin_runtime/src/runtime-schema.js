@@ -20,6 +20,7 @@ function createRuntimeSchemaBuilders({ fieldMeta }) {
     const renderer = getFieldMeta(type)?.formRenderer
 
     if (renderer === 'textarea') return 'textarea'
+    if (renderer === 'richtext') return 'richtext'
     if (type === 'number') return 'text'
     if (renderer === 'boolean') return 'boolean'
     if (renderer === 'date') return 'date'

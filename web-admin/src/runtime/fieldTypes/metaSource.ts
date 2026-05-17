@@ -42,7 +42,7 @@ export const rawSharedFieldMetaConfig = {
       label: '富文本',
       enabledInModelCreate: true,
       searchRenderer: 'textarea',
-      formRenderer: 'textarea',
+      formRenderer: 'richtext',
       displayRenderer: 'richtext',
       supports: {
         minLength: true,

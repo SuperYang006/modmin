@@ -882,7 +882,8 @@ function validateAndNormalizeFieldValue(field, value) {
   if (!field?.type) return { ok: true, value }
   if (
     (value === '' || value === null || value === undefined) &&
-    !(typeof field.minItems === 'number' && field.minItems > 0)
+    !(typeof field.minItems === 'number' && field.minItems > 0) &&
+    !(typeof field.minLength === 'number' && field.minLength > 0)
   ) {
     return { ok: true, value }
   }

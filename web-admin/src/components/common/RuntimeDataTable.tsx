@@ -108,6 +108,7 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
           field,
           value: record[field.fieldKey],
           dictMap,
+          mode: 'table',
         }),
     })),
     {

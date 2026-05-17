@@ -5,6 +5,7 @@ import { renderFormField, renderFormFieldTitleAction } from '@/runtime/registry/
 interface RuntimeRecordFormProps {
   visible: boolean
   mode: 'create' | 'edit'
+  variant?: 'drawer' | 'page'
   fields: RuntimeField[]
   dictMap: Record<string, DictOption[]>
   collectionName: string
@@ -18,7 +19,7 @@ interface RuntimeRecordFormProps {
 }
 
 export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
-  const { visible, mode, fields, dictMap, collectionName, values, errors, submitError, submitting = false, onClose, onChange, onSubmit } = props
+  const { visible, mode, variant = 'drawer', fields, dictMap, collectionName, values, errors, submitError, submitting = false, onClose, onChange, onSubmit } = props
   const systemFields = fields.filter((field) => isSystemReservedField(field.fieldKey))
   const businessFields = fields.filter((field) => !isSystemReservedField(field.fieldKey))
   const errorEntries = Object.entries(errors).filter(([, message]) => Boolean(message))
@@ -30,6 +31,75 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
     if (!firstErrorFieldKey) return
     const target = document.getElementById(`runtime-record-field-${firstErrorFieldKey}`)
     target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  const formContent = (
+    <div className="runtime-record-form-body">
+      <Form layout="vertical" className="runtime-record-form-shell">
+        {submitError ? (
+          <Alert
+            type="error"
+            showIcon
+            message={submitError}
+            style={{ marginBottom: 16 }}
+          />
+        ) : null}
+        {systemFields.length > 0 ? (
+          <div className="runtime-record-form-system-block">
+            <div className="runtime-record-form-system-head">
+              <strong>系统字段</strong>
+              <span>自动维护，只读显示</span>
+            </div>
+            <Row gutter={[12, 10]}>
+              {systemFields.map((field) => <RuntimeReadonlySystemField key={field.fieldKey} field={field} value={values[field.fieldKey]} />)}
+            </Row>
+          </div>
+        ) : null}
+        <Row gutter={[0, 12]}>
+          {businessFields.map((field) => renderFieldItem(field, mode, values, dictMap, collectionName, errors, onChange, false, submitting))}
+        </Row>
+      </Form>
+    </div>
+  )
+
+  const footerContent = (
+    <div className="runtime-record-form-drawer-footer">
+      {errorEntries.length > 0 ? (
+        <div className="runtime-record-form-error-summary">
+          <strong>{errorEntries.length} 个字段需要处理</strong>
+          <span>
+            {firstErrorField?.label || firstErrorFieldKey}
+            {firstErrorMessage ? `：${firstErrorMessage}` : ''}
+          </span>
+        </div>
+      ) : (
+        <div className="runtime-record-form-drawer-footer-copy">
+          {mode === 'create' ? '创建后会立即出现在当前列表中' : '保存后会刷新当前列表数据'}
+        </div>
+      )}
+      <Space size={10} className="runtime-record-form-drawer-actions">
+        {errorEntries.length > 0 ? (
+          <Button danger onClick={scrollToFirstError}>
+            定位错误
+          </Button>
+        ) : null}
+        <Button onClick={onClose} disabled={submitting}>
+          取消
+        </Button>
+        <Button type="primary" onClick={onSubmit} loading={submitting} disabled={submitting}>
+          {submitting ? '保存中' : '保存'}
+        </Button>
+      </Space>
+    </div>
+  )
+
+  if (variant === 'page') {
+    return (
+      <div className="runtime-record-form-page">
+        {formContent}
+        {footerContent}
+      </div>
+    )
   }
 
   return (
@@ -56,62 +126,10 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
         </Tag>
       }
       footer={
-        <div className="runtime-record-form-drawer-footer">
-          {errorEntries.length > 0 ? (
-            <div className="runtime-record-form-error-summary">
-              <strong>{errorEntries.length} 个字段需要处理</strong>
-              <span>
-                {firstErrorField?.label || firstErrorFieldKey}
-                {firstErrorMessage ? `：${firstErrorMessage}` : ''}
-              </span>
-            </div>
-          ) : (
-            <div className="runtime-record-form-drawer-footer-copy">
-              {mode === 'create' ? '创建后会立即出现在当前列表中' : '保存后会刷新当前列表数据'}
-            </div>
-          )}
-          <Space size={10} className="runtime-record-form-drawer-actions">
-            {errorEntries.length > 0 ? (
-              <Button danger onClick={scrollToFirstError}>
-                定位错误
-              </Button>
-            ) : null}
-            <Button onClick={onClose} disabled={submitting}>
-              取消
-            </Button>
-            <Button type="primary" onClick={onSubmit} loading={submitting} disabled={submitting}>
-              {submitting ? '保存中' : '保存'}
-            </Button>
-          </Space>
-        </div>
+        footerContent
       }
     >
-      <div className="runtime-record-form-body">
-        <Form layout="vertical" className="runtime-record-form-shell">
-          {submitError ? (
-            <Alert
-              type="error"
-              showIcon
-              message={submitError}
-              style={{ marginBottom: 16 }}
-            />
-          ) : null}
-          {systemFields.length > 0 ? (
-            <div className="runtime-record-form-system-block">
-              <div className="runtime-record-form-system-head">
-                <strong>系统字段</strong>
-                <span>自动维护，只读显示</span>
-              </div>
-              <Row gutter={[12, 10]}>
-                {systemFields.map((field) => renderReadonlySystemField(field, values[field.fieldKey]))}
-              </Row>
-            </div>
-          ) : null}
-          <Row gutter={[0, 12]}>
-            {businessFields.map((field) => renderFieldItem(field, mode, values, dictMap, collectionName, errors, onChange, false, submitting))}
-          </Row>
-        </Form>
-      </div>
+      {formContent}
     </Drawer>
   )
 }
@@ -209,7 +227,9 @@ function buildFileSizeTagText(field: RuntimeField) {
   return `单文件 ≤ ${field.maxFileSizeMB}MB`
 }
 
-function renderReadonlySystemField(field: RuntimeField, value: unknown) {
+export function RuntimeReadonlySystemField(props: { field: RuntimeField; value: unknown }) {
+  const { field, value } = props
+
   return (
     <Col key={field.fieldKey} xs={24} md={12}>
       <div className="runtime-record-form-system-cell">
@@ -280,6 +300,6 @@ function formatDateValue(value: unknown, type: 'date' | 'datetime', storageForma
   return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 }
 
-function isSystemReservedField(fieldKey: string) {
+export function isSystemReservedField(fieldKey: string) {
   return fieldKey === '_id' || String(fieldKey).startsWith('modmin_')
 }

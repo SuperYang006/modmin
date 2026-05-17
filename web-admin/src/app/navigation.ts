@@ -138,6 +138,10 @@ export function getGeneratedPagePath(pageCode: string) {
   return `/generated/${pageCode}`
 }
 
+export function getGeneratedCreatePath(pageCode: string) {
+  return `/generated/${pageCode}/create`
+}
+
 export function getModelEditPath(collectionName: string) {
   return `/config/models/${collectionName}/edit`
 }
@@ -147,6 +151,11 @@ export function resolveBreadcrumbs(
   collectionEntries: Array<{ collectionName: string; pageCode: string; label: string }>,
 ): BreadcrumbItem[] {
   const collectionEntry = collectionEntries.find((item) => pathname === getGeneratedPagePath(item.pageCode))
+  const generatedCreateEntry = collectionEntries.find((item) => pathname === getGeneratedCreatePath(item.pageCode))
+  const generatedEditEntry = collectionEntries.find((item) => {
+    const prefix = `/generated/${item.pageCode}/`
+    return pathname.startsWith(prefix) && pathname.endsWith('/edit')
+  })
 
   if (pathname === '/dashboard') {
     return [{ label: '控制台' }]
@@ -201,6 +210,24 @@ export function resolveBreadcrumbs(
 
   if (collectionEntry) {
     return [{ label: '业务模型' }, { label: '全部模型' }, { label: collectionEntry.label }]
+  }
+
+  if (generatedCreateEntry) {
+    return [
+      { label: '业务模型' },
+      { label: '全部模型' },
+      { label: generatedCreateEntry.label, to: getGeneratedPagePath(generatedCreateEntry.pageCode) },
+      { label: '新增数据' },
+    ]
+  }
+
+  if (generatedEditEntry) {
+    return [
+      { label: '业务模型' },
+      { label: '全部模型' },
+      { label: generatedEditEntry.label, to: getGeneratedPagePath(generatedEditEntry.pageCode) },
+      { label: '编辑数据' },
+    ]
   }
 
   if (pathname === '/no-access') {
