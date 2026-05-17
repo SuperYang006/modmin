@@ -321,6 +321,35 @@ function formatRelationCollectionLabel(collection: string) {
   return '关联项'
 }
 
+function buildLengthHelpText(field: RuntimeField) {
+  const minLength = typeof field.minLength === 'number' ? field.minLength : null
+  const maxLength = typeof field.maxLength === 'number' ? field.maxLength : null
+
+  if (minLength === null && maxLength === null) {
+    return ''
+  }
+
+  if (minLength !== null && maxLength !== null) {
+    return minLength === maxLength ? `长度需为 ${minLength} 个字符` : `长度范围：${minLength}-${maxLength} 个字符`
+  }
+
+  if (minLength !== null) {
+    return `至少 ${minLength} 个字符`
+  }
+
+  return `最多 ${maxLength} 个字符`
+}
+
+function renderFieldHelpText(field: RuntimeField, extraText = '') {
+  const texts = [field.description || '', extraText].map((item) => item.trim()).filter(Boolean)
+
+  if (texts.length === 0) {
+    return null
+  }
+
+  return <em className="field-help-text">{texts.join('；')}</em>
+}
+
 function FormRelationDetailAction(props: { field: RuntimeField; value: unknown }) {
   const { field, value } = props
 
@@ -387,7 +416,7 @@ function renderInputField(field: RuntimeField, value: unknown, onChange: (value:
         disabled={field.readonly === true}
         onChange={(event) => onChange(event.target.value)}
       />
-      {field.description ? <em className="field-help-text">{field.description}</em> : null}
+      {renderFieldHelpText(field, type === 'text' ? buildLengthHelpText(field) : '')}
     </label>
   )
 }
@@ -728,7 +757,7 @@ function textareaFormRenderer(props: FormRendererProps) {
         value={props.value}
         onChange={(event) => props.onChange(event.target.value)}
       />
-      {props.field.description ? <em className="field-help-text">{props.field.description}</em> : null}
+      {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}
     </label>
   )
 }
