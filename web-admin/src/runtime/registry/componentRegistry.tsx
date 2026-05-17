@@ -322,8 +322,10 @@ function formatRelationCollectionLabel(collection: string) {
 }
 
 function buildLengthHelpText(field: RuntimeField) {
-  const minLength = typeof field.minLength === 'number' ? field.minLength : null
-  const maxLength = typeof field.maxLength === 'number' ? field.maxLength : null
+  const minRule = field.validationRules?.find((rule) => rule.ruleType === 'minLength' && typeof rule.value === 'number')
+  const maxRule = field.validationRules?.find((rule) => rule.ruleType === 'maxLength' && typeof rule.value === 'number')
+  const minLength = typeof field.minLength === 'number' ? field.minLength : typeof minRule?.value === 'number' ? minRule.value : null
+  const maxLength = typeof field.maxLength === 'number' ? field.maxLength : typeof maxRule?.value === 'number' ? maxRule.value : null
 
   if (minLength === null && maxLength === null) {
     return ''
@@ -338,6 +340,27 @@ function buildLengthHelpText(field: RuntimeField) {
   }
 
   return `最多 ${maxLength} 个字符`
+}
+
+function buildNumberRangeHelpText(field: RuntimeField) {
+  const minRule = field.validationRules?.find((rule) => rule.ruleType === 'minValue' && typeof rule.value === 'number')
+  const maxRule = field.validationRules?.find((rule) => rule.ruleType === 'maxValue' && typeof rule.value === 'number')
+  const minValue = typeof field.minValue === 'number' ? field.minValue : typeof minRule?.value === 'number' ? minRule.value : null
+  const maxValue = typeof field.maxValue === 'number' ? field.maxValue : typeof maxRule?.value === 'number' ? maxRule.value : null
+
+  if (minValue === null && maxValue === null) {
+    return ''
+  }
+
+  if (minValue !== null && maxValue !== null) {
+    return minValue === maxValue ? `数值需为 ${minValue}` : `数值范围：${minValue}-${maxValue}`
+  }
+
+  if (minValue !== null) {
+    return `不能小于 ${minValue}`
+  }
+
+  return `不能大于 ${maxValue}`
 }
 
 function renderFieldHelpText(field: RuntimeField, extraText = '') {
@@ -412,11 +435,12 @@ function renderInputField(field: RuntimeField, value: unknown, onChange: (value:
       <input
         type={type}
         value={normalizedValue}
-        min={type === 'number' ? 0 : undefined}
+        min={type === 'number' && typeof field.minValue === 'number' ? field.minValue : undefined}
+        max={type === 'number' && typeof field.maxValue === 'number' ? field.maxValue : undefined}
         disabled={field.readonly === true}
         onChange={(event) => onChange(event.target.value)}
       />
-      {renderFieldHelpText(field, type === 'text' ? buildLengthHelpText(field) : '')}
+      {renderFieldHelpText(field, field.type === 'number' ? buildNumberRangeHelpText(field) : buildLengthHelpText(field))}
     </label>
   )
 }
@@ -2324,6 +2348,7 @@ export const componentRegistry = {
     richtext: textareaFormRenderer,
     markdown: textareaFormRenderer,
     number: numberFormRenderer,
+    numberInput: numberFormRenderer,
     amount: textFormRenderer,
     boolean: switchFormRenderer,
     switch: switchFormRenderer,

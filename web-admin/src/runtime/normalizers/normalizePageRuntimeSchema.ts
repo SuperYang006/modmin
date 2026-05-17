@@ -45,7 +45,7 @@ function getDefaultFormComponent(type: string) {
   }
 
   if (type === 'number') {
-    return 'text'
+    return 'number'
   }
 
   if (type === 'boolean') {
