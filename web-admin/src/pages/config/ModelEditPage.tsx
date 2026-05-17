@@ -124,6 +124,12 @@ function mapRuntimeFieldToDraft(field: {
   assetStorageMode?: 'object' | 'url'
   required?: boolean
   hidden?: boolean
+  readonlyOnCreate?: boolean
+  readonlyOnEdit?: boolean
+  formConfig?: {
+    readonlyOnCreate?: boolean
+    readonlyOnEdit?: boolean
+  }
   sortable?: boolean
   sortDirection?: 'asc' | 'desc'
 }): ModelFieldDraft {
@@ -173,6 +179,8 @@ function mapRuntimeFieldToDraft(field: {
     assetStorageMode: field.assetStorageMode === 'url' ? 'url' : 'object',
     required: field.required ?? false,
     hidden: field.hidden ?? false,
+    readonlyOnCreate: field.readonlyOnCreate ?? field.formConfig?.readonlyOnCreate ?? false,
+    readonlyOnEdit: field.readonlyOnEdit ?? field.formConfig?.readonlyOnEdit ?? false,
     sortable: field.sortable ?? false,
     sortDirection: field.sortDirection,
   }

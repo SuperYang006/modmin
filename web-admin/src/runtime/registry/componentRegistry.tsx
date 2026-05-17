@@ -779,6 +779,7 @@ function textareaFormRenderer(props: FormRendererProps) {
       <textarea
         className="runtime-textarea"
         value={props.value}
+        disabled={props.field.readonly === true}
         onChange={(event) => props.onChange(event.target.value)}
       />
       {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}
@@ -1231,7 +1232,7 @@ function multiPolyRelationFormRenderer(props: FormRendererProps) {
 
             return (
               <div key={`multi-poly-relation-${index}`} className="runtime-multi-poly-relation-item">
-                <div className="runtime-multi-poly-relation-grid">
+                <div className={`runtime-multi-poly-relation-grid${props.field.readonly ? ' is-readonly' : ''}`}>
                   <select
                     value={relation.collection}
                     disabled={props.field.readonly === true}
@@ -1264,13 +1265,15 @@ function multiPolyRelationFormRenderer(props: FormRendererProps) {
                     filterOption={(input, option) => String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
                     onChange={(nextValue) => updateRelation(index, { id: typeof nextValue === 'string' ? nextValue : '' })}
                   />
-                  <button
-                    type="button"
-                    className="ghost-button runtime-multi-poly-relation-remove"
-                    onClick={() => removeRelation(index)}
-                  >
-                    删除
-                  </button>
+                  {props.field.readonly ? null : (
+                    <button
+                      type="button"
+                      className="ghost-button runtime-multi-poly-relation-remove"
+                      onClick={() => removeRelation(index)}
+                    >
+                      删除
+                    </button>
+                  )}
                 </div>
                 {relation.collection ? (
                   renderRelationOptionHint(
@@ -1285,9 +1288,11 @@ function multiPolyRelationFormRenderer(props: FormRendererProps) {
             )
           })}
         </div>
-        <button type="button" className="primary-button runtime-multi-poly-relation-add" onClick={addRelation}>
-          新增关联
-        </button>
+        {props.field.readonly ? null : (
+          <button type="button" className="primary-button runtime-multi-poly-relation-add" onClick={addRelation}>
+            新增关联
+          </button>
+        )}
       </div>
       {props.field.description ? <em className="field-help-text">{props.field.description}</em> : null}
     </label>
@@ -1612,7 +1617,7 @@ function UploadField(props: FormRendererProps & { accept: string }) {
     return (
       <div key={props.field.fieldKey} className="field-stack">
         <span>{props.field.label}</span>
-        <div className="runtime-upload-panel">
+        <div className={`runtime-upload-panel${props.field.readonly === true ? ' is-readonly' : ''}`}>
           {props.field.readonly !== true && (
             <Upload.Dragger
               accept={(props.field.accept && props.field.accept.length > 0 ? props.field.accept.join(',') : props.accept) || undefined}
@@ -2416,7 +2421,10 @@ export function renderFormField(props: FormRendererProps) {
     componentRegistry.form.text
 
   const Renderer = renderer
-  return <Renderer {...props} />
+  const field = props.readonly === true && props.field.readonly !== true
+    ? { ...props.field, readonly: true }
+    : props.field
+  return <Renderer {...props} field={field} />
 }
 
 export function renderFormFieldTitleAction(field: RuntimeField, value: unknown) {

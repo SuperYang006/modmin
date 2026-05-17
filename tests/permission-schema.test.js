@@ -135,6 +135,49 @@ describe('modmin_schema permission gate', () => {
       expect(logs[0].eventType).toBe('schema.create')
     })
 
+    it('preserves readonly create and edit settings when saving schema', async () => {
+      const res = await call(fn, 'saveCollectionSchema', {
+        token: TOKEN_SUPER_ADMIN(),
+        data: {
+          schema: {
+            ...schemaPayload.schema,
+            collectionName: 'readonly_cases',
+            modelCode: 'readonly_cases',
+            pageCode: 'readonly_cases_list',
+            fields: [
+              {
+                key: 'code',
+                title: '编码',
+                type: 'text',
+                readonlyOnCreate: true,
+                readonlyOnEdit: true,
+              },
+            ],
+          },
+        },
+      })
+
+      expect(res.code).toBe(0)
+      expect(res.data.detail.fields[0].readonlyOnCreate).toBe(true)
+      expect(res.data.detail.fields[0].readonlyOnEdit).toBe(true)
+      expect(res.data.detail.fields[0].formConfig.readonlyOnCreate).toBe(true)
+      expect(res.data.detail.fields[0].formConfig.readonlyOnEdit).toBe(true)
+
+      const collection = getDocs(COLLECTIONS.collections).find((item) => item.collectionName === 'readonly_cases')
+      expect(collection.fields[0].readonlyOnCreate).toBe(true)
+      expect(collection.fields[0].readonlyOnEdit).toBe(true)
+
+      const detailRes = await call(fn, 'getCollectionSchemaDetail', {
+        token: TOKEN_SUPER_ADMIN(),
+        data: { collectionName: 'readonly_cases' },
+      })
+      expect(detailRes.code).toBe(0)
+      expect(detailRes.data.detail.fields[0].readonlyOnCreate).toBe(true)
+      expect(detailRes.data.detail.fields[0].readonlyOnEdit).toBe(true)
+      expect(detailRes.data.detail.fields[0].formConfig.readonlyOnCreate).toBe(true)
+      expect(detailRes.data.detail.fields[0].formConfig.readonlyOnEdit).toBe(true)
+    })
+
     it('rejects duplicate field keys after trimming', async () => {
       const res = await call(fn, 'saveCollectionSchema', {
         token: TOKEN_SUPER_ADMIN(),

@@ -2366,6 +2366,30 @@ a {
   line-height: 38px !important;
 }
 
+.runtime-record-form-shell .field-stack input:disabled,
+.runtime-record-form-shell .field-stack select:disabled,
+.runtime-record-form-shell .runtime-textarea:disabled,
+.runtime-record-form-shell .runtime-search-dropdown-button:disabled,
+.runtime-record-form-shell .ant-select-disabled .ant-select-selector,
+.runtime-record-form-shell .ant-picker-disabled {
+  border-color: #d5dde5 !important;
+  background: #f3f6f8 !important;
+  color: #7f8c98 !important;
+  cursor: not-allowed;
+}
+
+.runtime-record-form-shell .runtime-textarea:disabled {
+  resize: none;
+}
+
+.runtime-record-form-shell .ant-select-disabled .ant-select-selection-item,
+.runtime-record-form-shell .ant-select-disabled .ant-select-selection-placeholder,
+.runtime-record-form-shell .ant-picker-disabled input,
+.runtime-record-form-shell .runtime-search-dropdown-button:disabled .runtime-search-dropdown-label,
+.runtime-record-form-shell .runtime-search-dropdown-button:disabled .runtime-search-dropdown-icon {
+  color: #7f8c98 !important;
+}
+
 .runtime-record-form-system-block {
   margin-bottom: 12px;
   padding: 10px 12px 12px;
@@ -2974,6 +2998,14 @@ a {
   gap: 12px;
 }
 
+.runtime-upload-panel.is-readonly {
+  padding: 12px;
+  border: 1px solid #d5dde5;
+  border-radius: 12px;
+  background: #f3f6f8;
+  color: #7f8c98;
+}
+
 .runtime-upload-empty {
   color: #94a3b8;
 }
@@ -3314,6 +3346,10 @@ a {
   grid-template-columns: minmax(0, 180px) minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
+}
+
+.runtime-multi-poly-relation-grid.is-readonly {
+  grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
 }
 
 .runtime-multi-poly-relation-grid-single {

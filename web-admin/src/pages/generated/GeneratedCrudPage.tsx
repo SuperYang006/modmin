@@ -742,6 +742,10 @@ export function GeneratedCrudPage() {
       }
 
       if (field.type === 'polyRelation') {
+        if (!value.trim()) {
+          continue
+        }
+
         try {
           const parsed = JSON.parse(value)
 

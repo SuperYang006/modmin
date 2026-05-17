@@ -233,6 +233,8 @@ function createFieldNormalizers(deps) {
         assetStorageMode: MEDIA_TYPES.has(type) ? assetStorageMode : undefined,
         required: field.required === true,
         hidden: field.hidden === true,
+        readonlyOnCreate: field.readonlyOnCreate === true,
+        readonlyOnEdit: field.readonlyOnEdit === true,
         sortable: field.sortable === true,
         sortDirection: field.sortable === true && field.sortDirection === 'asc' ? 'asc' : 'desc',
       },
