@@ -6,20 +6,18 @@ Modmin（中文读法接近摩德敏,自造词来自于model + Admin）是一个
 它的目标不是做通用 SaaS 平台，而是帮助单个业务项目更快搭建一套可部署、可鉴权、可按模型生成 CRUD 页面的后台系统。
 
 ⚠️注意：目前项目仍在不断完善中，欢迎内测体验提交bug反馈。
-作者微信：
-![login](/doc/images/readme/wx.jpg)
 
 部分功能页面截图
 
-![login](/doc/images/readme/login.png)
+<img src="/doc/images/readme/login.png" alt="login" width="480" />
 
-![modelcreate](/doc/images/readme//modelcreate.png)
+<img src="/doc/images/readme/modelcreate.png" alt="modelcreate" width="480" />
 
-![webhook](/doc/images/readme//webhook.png)
+<img src="/doc/images/readme/webhook.png" alt="webhook" width="480" />
 
-![role](/doc/images/readme//role.png)
+<img src="/doc/images/readme/role.png" alt="role" width="480" />
 
-![log](/doc/images/readme//log.png)
+<img src="/doc/images/readme/log.png" alt="log" width="480" />
 
 ## 核心能力
 
@@ -224,3 +222,7 @@ npm run test:watch
 4. 模型驱动 CRUD 主链路
 
 如果你准备试用，建议优先按部署指南完整走一遍，而不是直接从页面代码开始看。
+
+作者微信：
+
+<img src="/doc/images/readme/wx.jpg" alt="wechat" width="480" />
