@@ -7,15 +7,15 @@ Modmin（中文读法接近摩德敏）是一个基于微信云开发（CloudBas
 
 部分功能页面截图
 
-![login](/login.png)
+![login](/doc/images/readme/login.png)
 
-![modelcreate](/modelcreate.png)
+![modelcreate](/doc/images/readme//modelcreate.png)
 
-![webhook](/webhook.png)
+![webhook](/doc/images/readme//webhook.png)
 
-![role](/role.png)
+![role](/doc/images/readme//role.png)
 
-![](/log.png)
+![log](/doc/images/readme//log.png)
 
 ## 核心能力
 
