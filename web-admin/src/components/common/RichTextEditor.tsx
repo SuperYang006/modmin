@@ -5,6 +5,11 @@ import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor/edit
 import '@wangeditor/editor/dist/css/style.css'
 import { uploadAsset, resolveAssetUrl } from '@/services/asset'
 import { buildRichTextImageHtml, useResolvedRichTextHtml } from '@/runtime/richtext/assets'
+import {
+  registerRichTextEditorState,
+  setRichTextEditorUploading,
+  unregisterRichTextEditorState,
+} from '@/runtime/richtext/editorState'
 import { sanitizeRichTextHtml, serializeRichTextHtmlForStorage } from '@/runtime/richtext/html'
 
 interface RichTextEditorProps {
@@ -74,11 +79,20 @@ function applyDefaultImageWidth(rawHtml: string) {
 
 export function RichTextEditor(props: RichTextEditorProps) {
   const { disabled, onChange } = props
+  const editorIdRef = useRef(`richtext_${Math.random().toString(36).slice(2)}_${Date.now()}`)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const editorRef = useRef<IDomEditor | null>(null)
   const [editorReady, setEditorReady] = useState(false)
+  const [uploadingCount, setUploadingCount] = useState(0)
   const value = typeof props.value === 'string' ? props.value : ''
   const resolvedValue = useResolvedRichTextHtml(value)
+  const onChangeRef = useRef(onChange)
+  const collectionNameRef = useRef(props.collectionName)
+  const fieldKeyRef = useRef(props.fieldKey)
+
+  onChangeRef.current = onChange
+  collectionNameRef.current = props.collectionName
+  fieldKeyRef.current = props.fieldKey
   const lastEmittedHtmlRef = useRef(serializeRichTextHtmlForStorage(value))
   const lastAppliedDisplayHtmlRef = useRef(sanitizeRichTextHtml(resolvedValue))
   const latestHtmlRef = useRef(value)
@@ -89,7 +103,64 @@ export function RichTextEditor(props: RichTextEditorProps) {
     const sanitizedHtml = serializeRichTextHtmlForStorage(htmlWithDefaultImageWidth)
     latestHtmlRef.current = htmlWithDefaultImageWidth
     lastEmittedHtmlRef.current = sanitizedHtml
-    onChange(sanitizedHtml)
+    onChangeRef.current(sanitizedHtml)
+  }
+
+  function flushCurrentEditor() {
+    const editor = editorRef.current
+    if (!editor) return undefined
+
+    if (syncTimerRef.current !== null) {
+      window.clearTimeout(syncTimerRef.current)
+      syncTimerRef.current = null
+    }
+
+    const htmlWithDefaultImageWidth = applyDefaultImageWidth(editor.getHtml())
+    const sanitizedHtml = serializeRichTextHtmlForStorage(htmlWithDefaultImageWidth)
+    latestHtmlRef.current = htmlWithDefaultImageWidth
+    lastEmittedHtmlRef.current = sanitizedHtml
+    onChangeRef.current(sanitizedHtml)
+    return sanitizedHtml
+  }
+
+  function updateUploadingCount(updater: (count: number) => number) {
+    setUploadingCount((prev) => {
+      const nextCount = Math.max(0, updater(prev))
+      setRichTextEditorUploading(editorIdRef.current, nextCount)
+      return nextCount
+    })
+  }
+
+  async function insertImageFile(file: File, currentEditor: IDomEditor | null) {
+    if (!file.type.startsWith('image/')) {
+      throw new Error('只能上传图片文件')
+    }
+
+    if (file.size > MAX_RICH_TEXT_IMAGE_SIZE) {
+      throw new Error('图片大小不能超过 5MB')
+    }
+
+    updateUploadingCount((count) => count + 1)
+    try {
+      const uploaded = await uploadAsset(
+        file,
+        collectionNameRef.current || 'runtime',
+        fieldKeyRef.current || 'richtext',
+      )
+      if (uploaded.contentType && !uploaded.contentType.startsWith('image/')) {
+        throw new Error('只能上传图片文件')
+      }
+
+      const displayUrl = await resolveAssetUrl(uploaded)
+      const imageHtml = buildRichTextImageHtml(uploaded, displayUrl)
+
+      currentEditor?.dangerouslyInsertHtml(imageHtml)
+      if (currentEditor) {
+        emitChange(currentEditor.getHtml())
+      }
+    } finally {
+      updateUploadingCount((count) => count - 1)
+    }
   }
 
   function scheduleChange(rawHtml: string) {
@@ -162,26 +233,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
             const currentEditor = editorRef.current
 
             try {
-              if (!file.type.startsWith('image/')) {
-                throw new Error('只能上传图片文件')
-              }
-
-              if (file.size > MAX_RICH_TEXT_IMAGE_SIZE) {
-                throw new Error('图片大小不能超过 5MB')
-              }
-
-              const uploaded = await uploadAsset(file, props.collectionName || 'runtime', props.fieldKey || 'richtext')
-              if (uploaded.contentType && !uploaded.contentType.startsWith('image/')) {
-                throw new Error('只能上传图片文件')
-              }
-
-              const displayUrl = await resolveAssetUrl(uploaded)
-              const imageHtml = buildRichTextImageHtml(uploaded, displayUrl)
-
-              currentEditor?.dangerouslyInsertHtml(imageHtml)
-              if (currentEditor) {
-                emitChange(currentEditor.getHtml())
-              }
+              await insertImageFile(file, currentEditor)
             } catch (error) {
               const message = error instanceof Error ? error.message : '图片上传失败'
               currentEditor?.alert(message, 'error')
@@ -191,6 +243,16 @@ export function RichTextEditor(props: RichTextEditorProps) {
         },
       },
       customPaste: (currentEditor, event) => {
+        const files = Array.from(event.clipboardData?.files || [])
+        const imageFiles = files.filter((file) => file.type.startsWith('image/'))
+        if (imageFiles.length > 0) {
+          event.preventDefault()
+          void Promise.all(imageFiles.map((file) => insertImageFile(file, currentEditor))).catch((error) => {
+            currentEditor.alert(error instanceof Error ? error.message : '图片上传失败', 'error')
+          })
+          return false
+        }
+
         event.preventDefault()
         const text = event.clipboardData?.getData('text/plain') || ''
         currentEditor.insertText(text)
@@ -213,7 +275,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
         }, 0)
       },
     }),
-    [disabled, onChange, props.collectionName, props.fieldKey],
+    [],
   )
 
   useEffect(() => {
@@ -235,6 +297,14 @@ export function RichTextEditor(props: RichTextEditorProps) {
       lastAppliedDisplayHtmlRef.current = nextDisplayValue
     }
   }, [value, resolvedValue])
+
+  useEffect(() => {
+    registerRichTextEditorState(editorIdRef.current, props.fieldKey || '', flushCurrentEditor)
+
+    return () => {
+      unregisterRichTextEditorState(editorIdRef.current)
+    }
+  }, [props.fieldKey])
 
   useEffect(() => {
     const editor = editorRef.current
@@ -272,9 +342,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
         window.clearTimeout(syncTimerRef.current)
       }
 
-      if (editorRef.current) {
-        emitChange(editorRef.current.getHtml())
-      }
+      flushCurrentEditor()
 
       editorRef.current?.destroy()
       editorRef.current = null
@@ -303,6 +371,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
           scheduleChange(currentEditor.getHtml())
         }}
       />
+      {uploadingCount > 0 ? <div className="runtime-richtext-uploading-tip">图片上传中，请稍候保存</div> : null}
     </div>
   )
 }

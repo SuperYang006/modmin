@@ -7,6 +7,7 @@ import { loadCrudDetail } from '@/runtime/loader/loadCrudDetail'
 import { loadPageRuntimeSchema } from '@/runtime/loader/loadPageRuntimeSchema'
 import { normalizePageRuntimeSchema } from '@/runtime/normalizers/normalizePageRuntimeSchema'
 import { updateCrudRecord } from '@/runtime/loader/updateCrudRecord'
+import { flushRichTextEditors, hasUploadingRichTextImages } from '@/runtime/richtext/editorState'
 import { preloadAssetUrls } from '@/services/asset'
 import { useModelPermission } from '@/context/PermissionContext'
 import type { PageRuntimeSchema } from '@/types/runtime'
@@ -113,6 +114,19 @@ export function GeneratedCrudFormPage() {
       return
     }
 
+    const flushedRichTextValues = flushRichTextEditors()
+    const submitValues = {
+      ...values,
+      ...flushedRichTextValues,
+    }
+
+    if (hasUploadingRichTextImages()) {
+      const errorMsg = '图片上传中，请稍候保存'
+      setSubmitError(errorMsg)
+      void message.warning(errorMsg)
+      return
+    }
+
     if ((mode === 'create' && !contextPerm.canCreate) || (mode === 'edit' && !contextPerm.canUpdate)) {
       setSubmitError('无权执行当前操作')
       return
@@ -121,7 +135,7 @@ export function GeneratedCrudFormPage() {
     const activeFields = schema.fields.filter((field) =>
       mode === 'create' ? field.formConfig?.visibleOnCreate : field.formConfig?.visibleOnEdit,
     )
-    const nextErrors = validateRuntimeForm(activeFields, values)
+    const nextErrors = validateRuntimeForm(activeFields, submitValues)
     setErrors(nextErrors)
     setSubmitError('')
 
@@ -134,7 +148,7 @@ export function GeneratedCrudFormPage() {
     setSubmitting(true)
     try {
       const collectionName = String(schema.collection.collectionName)
-      const submittedRecord = buildSubmittedRecord(activeFields, values, initialValues, mode)
+      const submittedRecord = buildSubmittedRecord(activeFields, submitValues, initialValues, mode)
       const response =
         mode === 'create'
           ? await createCrudRecord({ collectionName, record: submittedRecord })

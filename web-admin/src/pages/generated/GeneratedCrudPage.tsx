@@ -18,6 +18,7 @@ import { loadCrudList } from '@/runtime/loader/loadCrudList'
 import { loadPageRuntimeSchema } from '@/runtime/loader/loadPageRuntimeSchema'
 import { normalizePageRuntimeSchema } from '@/runtime/normalizers/normalizePageRuntimeSchema'
 import { resolveActionVisible } from '@/runtime/permissions/resolveActionVisible'
+import { flushRichTextEditors, hasUploadingRichTextImages } from '@/runtime/richtext/editorState'
 import { updateCrudRecord } from '@/runtime/loader/updateCrudRecord'
 import { preloadAssetUrls } from '@/services/asset'
 import { useModelPermission } from '@/context/PermissionContext'
@@ -480,10 +481,23 @@ export function GeneratedCrudPage() {
       return
     }
 
+    const flushedRichTextValues = flushRichTextEditors()
+    const submitValues = {
+      ...formValues,
+      ...flushedRichTextValues,
+    }
+
+    if (hasUploadingRichTextImages()) {
+      const errorMsg = '图片上传中，请稍候保存'
+      setFormSubmitError(errorMsg)
+      void message.warning(errorMsg)
+      return
+    }
+
     const activeFields = schema.fields.filter((field) =>
       formMode === 'create' ? field.formConfig?.visibleOnCreate : field.formConfig?.visibleOnEdit,
     )
-    const nextErrors = validateRuntimeForm(activeFields, formValues)
+    const nextErrors = validateRuntimeForm(activeFields, submitValues)
 
     setFormErrors(nextErrors)
     setFormSubmitError('')
@@ -495,7 +509,7 @@ export function GeneratedCrudPage() {
     }
 
     const collectionName = String(schema.collection.collectionName)
-    const submittedRecord = buildSubmittedRecord(activeFields, formValues, initialFormValues, formMode)
+    const submittedRecord = buildSubmittedRecord(activeFields, submitValues, initialFormValues, formMode)
     setFormSubmitting(true)
 
     try {

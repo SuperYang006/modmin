@@ -1,8 +1,24 @@
+---
+typora-root-url: ./doc/images/readme
+---
+
 # Modmin
 
 Modmin（中文读法接近摩德敏）是一个基于微信云开发（CloudBase）的模型驱动管理后台模板。
 
 它的目标不是做通用 SaaS 平台，而是帮助单个业务项目更快搭建一套可部署、可鉴权、可按模型生成 CRUD 页面的后台系统。
+
+部分功能页面截图
+
+![login](/doc/images/readme/login.png)
+
+![modelcreate](/doc/images/readme/modelcreate.png)
+
+![webhook](/doc/images/readme/webhook.png)
+
+![role](/doc/images/readme/role.png)
+
+![log](/doc/images/readme/log.png)
 
 ## 核心能力
 

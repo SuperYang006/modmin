@@ -3231,6 +3231,7 @@ a {
   position: relative;
   border-bottom: 1px solid #e4ebf2;
   background: #f8fafc;
+  z-index: 12;
 }
 
 .runtime-richtext-editor .w-e-modal {
@@ -3283,6 +3284,20 @@ a {
 .runtime-richtext-editable .w-e-text-placeholder {
   color: #9aa6b2;
   font-style: normal;
+}
+
+.runtime-richtext-uploading-tip {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  z-index: 13;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
 }
 
 .runtime-richtext-viewer {
