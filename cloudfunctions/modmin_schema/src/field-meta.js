@@ -129,7 +129,6 @@ module.exports = {
       supports: {
         relationModelCollection: true,
         relationDisplayFields: true,
-        sortable: true,
       },
     },
     {
@@ -156,7 +155,6 @@ module.exports = {
       supports: {
         relationModelCollections: true,
         polyRelationDisplayMap: true,
-        sortable: true,
       },
     },
     {

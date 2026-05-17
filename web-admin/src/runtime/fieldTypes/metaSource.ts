@@ -132,7 +132,6 @@ export const rawSharedFieldMetaConfig = {
       supports: {
         relationModelCollection: true,
         relationDisplayFields: true,
-        sortable: true,
       },
     },
     {
@@ -159,7 +158,6 @@ export const rawSharedFieldMetaConfig = {
       supports: {
         relationModelCollections: true,
         polyRelationDisplayMap: true,
-        sortable: true,
       },
     },
     {
