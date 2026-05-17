@@ -1,6 +1,3 @@
----
-typora-root-url: ./doc/images/readme
----
 
 # Modmin
 
@@ -10,15 +7,15 @@ Modmin（中文读法接近摩德敏）是一个基于微信云开发（CloudBas
 
 部分功能页面截图
 
-![login](/doc/images/readme/login.png)
+![login](/login.png)
 
-![modelcreate](/doc/images/readme/modelcreate.png)
+![modelcreate](/modelcreate.png)
 
-![webhook](/doc/images/readme/webhook.png)
+![webhook](/webhook.png)
 
-![role](/doc/images/readme/role.png)
+![role](/role.png)
 
-![log](/doc/images/readme/log.png)
+![](/log.png)
 
 ## 核心能力
 
