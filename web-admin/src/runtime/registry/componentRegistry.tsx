@@ -8,6 +8,8 @@ import { getFieldTypeDefinition } from '@/runtime/fieldTypes/registry'
 import { RelationDetailTrigger } from '@/components/common/RelationDetailTrigger'
 import { RichTextFieldEditor } from '@/components/common/RichTextFieldEditor'
 import { RichTextViewer } from '@/components/common/RichTextViewer'
+import { MarkdownFieldEditor } from '@/components/common/MarkdownFieldEditor'
+import { MarkdownViewer } from '@/components/common/MarkdownViewer'
 import {
   buildMultiPolyRelationDetailRecords,
   buildRelationManyDetailRecords,
@@ -2398,6 +2400,20 @@ export const componentRegistry = {
     textarea: textareaFormRenderer,
     richtext: richtextFormRenderer,
     markdown: textareaFormRenderer,
+    markdownEditor: (props: FormRendererProps) => (
+      <div key={props.field.fieldKey} className="field-stack">
+        <span>{props.field.label}</span>
+        <MarkdownFieldEditor
+          value={typeof props.value === 'string' ? props.value : ''}
+          disabled={props.readonly === true || props.field.readonly === true}
+          collectionName={props.collectionName}
+          fieldKey={props.field.fieldKey}
+          fieldLabel={props.field.label}
+          onChange={props.onChange}
+        />
+        {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}
+      </div>
+    ),
     number: numberFormRenderer,
     numberInput: numberFormRenderer,
     amount: textFormRenderer,
@@ -2425,7 +2441,7 @@ export const componentRegistry = {
     text: defaultDisplayRenderer,
     textarea: defaultDisplayRenderer,
     richtext: richtextDisplayRenderer,
-    markdown: defaultDisplayRenderer,
+    markdown: (props: DisplayRendererProps) => <MarkdownViewer value={props.value} mode={props.mode} />,
     number: defaultDisplayRenderer,
     amount: defaultDisplayRenderer,
     boolean: booleanDisplayRenderer,

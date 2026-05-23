@@ -3426,6 +3426,372 @@ a {
   border: 1px solid #d8e2ec;
 }
 
+/* ---- Markdown Field Editor ---- */
+.runtime-markdown-field {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  min-height: 96px;
+}
+
+.runtime-markdown-field.is-disabled {
+  opacity: 0.72;
+}
+
+.runtime-markdown-field-preview {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #c8d7e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #3b4859;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.runtime-markdown-field-preview > span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.runtime-markdown-field-preview .ant-empty {
+  margin: 4px 0;
+}
+
+.runtime-markdown-drawer .ant-drawer-body {
+  padding: 16px;
+}
+
+.runtime-vditor-shell {
+  --runtime-vditor-code-bg: #24292e;
+  --runtime-vditor-code-border: #24292e;
+  --runtime-vditor-code-focus-border: #8fb7ff;
+  --runtime-vditor-inline-code-bg: #eef2f7;
+  --runtime-vditor-inline-code-color: #b42318;
+  --runtime-vditor-code-text: #e6edf3;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: visible;
+}
+
+.runtime-vditor-shell.is-disabled {
+  opacity: 0.7;
+}
+
+.runtime-vditor-container {
+  position: relative;
+  height: 100%;
+  padding-top: 8px;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.runtime-vditor-container .vditor-tooltipped::before,
+.runtime-vditor-container .vditor-tooltipped::after {
+  display: none !important;
+  content: none !important;
+}
+
+.runtime-vditor-tooltip {
+  position: absolute;
+  z-index: 1000;
+  transform: translate(-50%, calc(-100% - 8px));
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.runtime-vditor-tooltip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 0;
+  height: 0;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(0, 0, 0, 0.85);
+}
+
+.runtime-vditor-container .vditor-toolbar__item input[type="file"] {
+  margin: 0;
+}
+
+.runtime-vditor-container .vditor {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.runtime-vditor-container .vditor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.runtime-vditor-container .vditor-toolbar__item {
+  float: none;
+}
+
+.runtime-vditor-container .vditor-toolbar__divider {
+  float: none;
+  height: 14px;
+  margin: 0 6px;
+  border-left-color: #e8e8e8;
+}
+
+.runtime-vditor-container .vditor-toolbar__item .vditor-tooltipped,
+.runtime-vditor-container .vditor-toolbar__item input[type="file"] {
+  width: 32px;
+  height: 32px;
+}
+
+.runtime-vditor-container .vditor-toolbar__item .vditor-tooltipped {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 6px;
+  color: rgba(0, 0, 0, 0.72);
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.runtime-vditor-container .vditor-toolbar__item .vditor-tooltipped:hover,
+.runtime-vditor-container .vditor-toolbar__item .vditor-tooltipped:focus {
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
+.runtime-vditor-container .vditor-toolbar__item .vditor-tooltipped.vditor-menu--current {
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
+.runtime-vditor-container .vditor-toolbar__item svg {
+  width: 16px;
+  height: 16px;
+}
+
+.runtime-vditor-container .vditor-content {
+  background: #ffffff;
+}
+
+.runtime-vditor-container .vditor-ir,
+.runtime-vditor-container .vditor-wysiwyg,
+.runtime-vditor-container .vditor-sv {
+  background: #ffffff;
+}
+
+.runtime-vditor-container .vditor-reset {
+  max-width: none;
+  margin: 0;
+  padding: 20px 20px 24px;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 1.75;
+  font-size: 14px;
+}
+
+.runtime-vditor-container .vditor-ir__marker--title {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.runtime-vditor-container .vditor-ir__marker--heading {
+  color: #1677ff;
+}
+
+.runtime-vditor-container .vditor-ir__node--expand .vditor-ir__marker--pre code,
+.runtime-vditor-container .vditor-ir pre.vditor-reset code,
+.runtime-vditor-container .vditor-wysiwyg pre.vditor-reset code {
+  background: transparent;
+}
+
+.runtime-vditor-container .vditor-ir__marker--pre {
+  display: block;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--runtime-vditor-code-bg);
+  border: 1px solid var(--runtime-vditor-code-border);
+}
+
+.runtime-vditor-container .vditor-ir__node--expand .vditor-ir__marker--pre code,
+.runtime-vditor-container .vditor-wysiwyg pre code.hljs,
+.runtime-vditor-container .vditor-reset pre code.hljs {
+  display: block;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--runtime-vditor-code-text);
+}
+
+.runtime-vditor-container .vditor-reset :not(pre) > code,
+.runtime-vditor-container .vditor-ir__marker--pre code:not(.hljs),
+.runtime-vditor-container .vditor-wysiwyg code:not(.hljs) {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--runtime-vditor-inline-code-bg);
+  color: var(--runtime-vditor-inline-code-color);
+}
+
+.runtime-vditor-container .vditor-reset blockquote {
+  margin: 16px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #91caff;
+  background: #f6ffed;
+  color: rgba(0, 0, 0, 0.72);
+  font-style: normal;
+}
+
+.runtime-vditor-container .vditor-reset table {
+  margin: 16px 0;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+.runtime-vditor-container .vditor-reset th,
+.runtime-vditor-container .vditor-reset td {
+  border: 1px solid #f0f0f0;
+  padding: 8px 12px;
+}
+
+.runtime-vditor-container .vditor-reset th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.runtime-vditor-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 8px 12px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.runtime-vditor-statusbar span:first-child {
+  margin-right: auto;
+}
+
+/* ---- Markdown Viewer ---- */
+.runtime-markdown-viewer {
+  color: #1f2a37;
+  line-height: 1.75;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.runtime-markdown-viewer h1,
+.runtime-markdown-viewer h2,
+.runtime-markdown-viewer h3,
+.runtime-markdown-viewer h4,
+.runtime-markdown-viewer h5,
+.runtime-markdown-viewer h6 {
+  margin: 16px 0 8px;
+  line-height: 1.3;
+}
+
+.runtime-markdown-viewer h1:first-child,
+.runtime-markdown-viewer h2:first-child,
+.runtime-markdown-viewer h3:first-child {
+  margin-top: 0;
+}
+
+.runtime-markdown-viewer p {
+  margin: 0 0 10px;
+}
+
+.runtime-markdown-viewer p:last-child {
+  margin-bottom: 0;
+}
+
+.runtime-markdown-viewer ul,
+.runtime-markdown-viewer ol {
+  margin: 0 0 10px 20px;
+  padding: 0;
+}
+
+.runtime-markdown-viewer blockquote {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #b6c7d8;
+  background: #f6f8fb;
+  color: #52606d;
+}
+
+.runtime-markdown-viewer code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  font-size: 0.9em;
+  font-family: "SFMono-Regular", "JetBrains Mono", monospace;
+}
+
+.runtime-markdown-viewer pre {
+  margin: 10px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #24292e;
+  color: #e6edf3;
+  overflow-x: auto;
+}
+
+.runtime-markdown-viewer pre code {
+  padding: 0;
+  background: #24292e;
+  background-image: none;
+  color: #e6edf3;
+}
+
+.runtime-markdown-viewer table {
+  max-width: 100%;
+  margin: 10px 0;
+  border-collapse: collapse;
+}
+
+.runtime-markdown-viewer th,
+.runtime-markdown-viewer td {
+  padding: 8px 10px;
+  border: 1px solid #d8e2ec;
+  text-align: left;
+}
+
+.runtime-markdown-viewer th {
+  background: #f6f8fb;
+  font-weight: 600;
+}
+
+.runtime-markdown-viewer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.runtime-markdown-viewer hr {
+  margin: 16px 0;
+  border: 0;
+  border-top: 1px solid #d8e2ec;
+}
+
 .runtime-multiselect {
   min-height: 96px;
   padding: 8px 12px;

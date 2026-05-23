@@ -55,7 +55,7 @@ export const rawSharedFieldMetaConfig = {
       label: 'Markdown',
       enabledInModelCreate: true,
       searchRenderer: 'textarea',
-      formRenderer: 'textarea',
+      formRenderer: 'markdownEditor',
       displayRenderer: 'markdown',
       supports: {
         minLength: true,

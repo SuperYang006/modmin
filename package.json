@@ -19,5 +19,8 @@
     "@cloudbase/node-sdk": "^3.18.1",
     "jsonwebtoken": "^9.0.2",
     "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "@uiw/react-md-editor": "^4.1.1"
   }
 }
