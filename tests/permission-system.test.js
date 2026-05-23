@@ -7,6 +7,9 @@ const COLLECTIONS = {
   collections: 'modmin_collections',
   adminRoles: 'modmin_admin_roles',
   rolePermissions: 'modmin_role_permissions',
+  adminUsers: 'modmin_admin_users',
+  webhooks: 'modmin_webhooks',
+  webhookDeliveries: 'modmin_webhook_deliveries',
 }
 
 function call(fn, action, { data, token } = {}) {
@@ -28,6 +31,9 @@ describe('modmin_system permission flow', () => {
       [COLLECTIONS.rolePermissions]: [
         buildRolePermission({ roleCode: 'role_operator', collectionName: 'articles', canList: true, canCreate: true }),
       ],
+      [COLLECTIONS.adminUsers]: [],
+      [COLLECTIONS.webhooks]: [],
+      [COLLECTIONS.webhookDeliveries]: [],
       ...extra,
     })
     fn = loadCloudFunction('modmin_system')
@@ -69,6 +75,81 @@ describe('modmin_system permission flow', () => {
       const res = await call(fn, 'getMyPermissions', { token: TOKEN_OPERATOR() })
       expect(res.code).toBe(0)
       expect(res.data.permMap).toEqual({})
+    })
+  })
+
+  describe('getConsoleOverview', () => {
+    beforeEach(() => seed({
+      [COLLECTIONS.collections]: [
+        {
+          ...buildCollectionDoc({ collectionName: 'articles', modelName: '文章' }),
+          fields: [
+            { fieldKey: 'title', label: '标题', type: 'text' },
+            { fieldKey: 'summary', label: '摘要', type: 'text' },
+            { fieldKey: 'status', label: '状态', type: 'text' },
+          ],
+          menuGroupId: 'content',
+          updateTime: 3000,
+        },
+        {
+          ...buildCollectionDoc({ collectionName: 'orders', modelName: '订单' }),
+          fields: [
+            { fieldKey: 'title', label: '标题', type: 'text' },
+            { fieldKey: 'amount', label: '金额', type: 'number' },
+          ],
+          updateTime: 4000,
+        },
+      ],
+      [COLLECTIONS.adminUsers]: [
+        { _id: 'u1', userName: 'alice', roleCode: 'role_operator', status: 'enabled' },
+      ],
+      [COLLECTIONS.webhooks]: [
+        { _id: 'w1', name: '订单通知', status: 'enabled' },
+      ],
+      [COLLECTIONS.webhookDeliveries]: [
+        { _id: 'd1', webhookId: 'w1', status: 'failed' },
+      ],
+    }))
+
+    it('returns system overview for super admin', async () => {
+      const res = await call(fn, 'getConsoleOverview', { token: TOKEN_SUPER_ADMIN() })
+      expect(res.code).toBe(0)
+      expect(res.data.isSuperAdmin).toBe(true)
+      expect(res.data.stats).toMatchObject({
+        modelCount: 2,
+        fieldCount: 5,
+        visibleModelCount: 2,
+        ungroupedModelCount: 1,
+        roleCount: 2,
+        adminUserCount: 1,
+        webhookCount: 1,
+        failedWebhookDeliveryCount: 1,
+      })
+      expect(res.data.recentModels[0].collectionName).toBe('orders')
+      expect(res.data.warnings.map((item) => item.type)).toContain('ungroupedModels')
+      expect(res.data.warnings.map((item) => item.type)).toContain('failedWebhookDeliveries')
+    })
+
+    it('returns visible business overview for operator', async () => {
+      const res = await call(fn, 'getConsoleOverview', { token: TOKEN_OPERATOR() })
+      expect(res.code).toBe(0)
+      expect(res.data.isSuperAdmin).toBe(false)
+      expect(res.data.stats).toMatchObject({
+        modelCount: 1,
+        fieldCount: 3,
+        visibleModelCount: 1,
+        ungroupedModelCount: 0,
+      })
+      expect(res.data.visibleModels.map((item) => item.collectionName)).toEqual(['articles'])
+      expect(res.data.warnings).toEqual([])
+    })
+
+    it('returns roleDisabled overview for disabled role', async () => {
+      const res = await call(fn, 'getConsoleOverview', { token: TOKEN_CUSTOM('role_archived') })
+      expect(res.code).toBe(0)
+      expect(res.data.roleDisabled).toBe(true)
+      expect(res.data.visibleModels).toEqual([])
+      expect(res.data.warnings[0]).toMatchObject({ type: 'roleDisabled', severity: 'error' })
     })
   })
 

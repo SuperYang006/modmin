@@ -1620,6 +1620,10 @@ a {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.dashboard-stat-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .dashboard-stat-grid-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -1748,12 +1752,22 @@ a {
 
 .dashboard-task-item {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 34px auto;
+  grid-template-columns: 34px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   min-height: 62px;
   padding: 10px 0;
   border-bottom: 1px solid #eef2f6;
+}
+
+.dashboard-task-item-error .dashboard-task-icon {
+  color: #b42318;
+  background: #fff1f0;
+}
+
+.dashboard-task-item-warning .dashboard-task-icon {
+  color: #ad6800;
+  background: #fff7e6;
 }
 
 .dashboard-task-item:last-child {
@@ -5488,6 +5502,7 @@ a {
   }
 
   .dashboard-stat-grid-4,
+  .dashboard-stat-grid-3,
   .dashboard-stat-grid-2,
   .dashboard-main-grid {
     grid-template-columns: 1fr;
@@ -5502,7 +5517,7 @@ a {
   }
 
   .dashboard-task-item {
-    grid-template-columns: 34px minmax(0, 1fr) 34px;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
   }
 
   .dashboard-task-item .ant-btn {

@@ -40,6 +40,35 @@ export interface ListCollectionSchemasResult {
   list: CollectionSchemaSummary[]
 }
 
+export interface ConsoleOverviewWarning {
+  type: 'noModels' | 'noVisibleModels' | 'roleDisabled' | 'ungroupedModels' | 'unauthorizedModels' | 'failedWebhookDeliveries' | string
+  severity: 'info' | 'warning' | 'error'
+  title: string
+  description: string
+  count: number
+  actionPath?: string
+}
+
+export interface ConsoleOverviewStats {
+  modelCount: number
+  fieldCount: number
+  visibleModelCount: number
+  ungroupedModelCount: number
+  roleCount: number
+  adminUserCount: number
+  webhookCount: number
+  failedWebhookDeliveryCount: number
+}
+
+export interface ConsoleOverviewResult {
+  isSuperAdmin: boolean
+  roleDisabled?: boolean
+  stats: ConsoleOverviewStats
+  recentModels: CollectionSchemaSummary[]
+  visibleModels: CollectionSchemaSummary[]
+  warnings: ConsoleOverviewWarning[]
+}
+
 export interface GetCollectionSchemaDetailResult {
   detail: CollectionSchemaDetail
 }

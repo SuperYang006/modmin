@@ -23,6 +23,8 @@ const COLLECTIONS = {
   adminUsers: `${collectionPrefix}admin_users`,
   rolePermissions: `${collectionPrefix}role_permissions`,
   sessions: `${collectionPrefix}sessions`,
+  webhooks: `${collectionPrefix}webhooks`,
+  webhookDeliveries: `${collectionPrefix}webhook_deliveries`,
 }
 
 const {
@@ -57,6 +59,7 @@ const {
   saveAdminUser,
   deleteAdminUser,
   disableAdminUser,
+  getConsoleOverview,
 } = createSystemActions({
   db,
   collections: COLLECTIONS,
@@ -91,6 +94,7 @@ const ACTION_HANDLERS = {
   saveAdminUser,
   deleteAdminUser,
   disableAdminUser,
+  getConsoleOverview,
 }
 
 exports.main = async (event) => {

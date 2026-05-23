@@ -31,6 +31,7 @@ import {
 import type { AdminUserInfo } from '@/types/auth'
 import type { CrudFilterItem } from '@/types/runtime'
 import type { SaveRolePayload } from '@/types/schema'
+import type { ConsoleOverviewResult } from '@/types/schema'
 import type { RolePermissionRow } from '@/runtime/loader/rolePermissions'
 import type { SaveAdminUserPayload } from '@/runtime/loader/adminUsers'
 
@@ -116,6 +117,40 @@ export async function dispatchMockCloudFunction<TData, TResult>(
   // ─── system: permissions ──────────────────────────────────
   if (functionName === 'system' && payload.action === 'getMyPermissions') {
     return ok({ isSuperAdmin: true, permMap: {} } as TResult, requestId)
+  }
+
+  if (functionName === 'system' && payload.action === 'getConsoleOverview') {
+    const collections = listCollectionSchemasMock().list
+    const ungroupedModelCount = collections.filter((item) => !item.menuGroupId).length
+    const overview: ConsoleOverviewResult = {
+      isSuperAdmin: true,
+      roleDisabled: false,
+      stats: {
+        modelCount: collections.length,
+        fieldCount: collections.reduce((sum, item) => sum + (Number(item.fieldCount) || 0), 0),
+        visibleModelCount: collections.length,
+        ungroupedModelCount,
+        roleCount: listRolesFromStore().length,
+        adminUserCount: listAdminUsersFromStore().length,
+        webhookCount: 0,
+        failedWebhookDeliveryCount: 0,
+      },
+      recentModels: collections.slice(0, 5),
+      visibleModels: collections,
+      warnings: ungroupedModelCount > 0
+        ? [
+            {
+              type: 'ungroupedModels',
+              severity: 'warning',
+              title: '存在未分组模型',
+              description: '未归入菜单分组的模型会直接显示在侧边栏根级。',
+              count: ungroupedModelCount,
+              actionPath: '/config/menu-groups',
+            },
+          ]
+        : [],
+    }
+    return ok(overview as TResult, requestId)
   }
 
   // ─── system: roles ────────────────────────────────────────
