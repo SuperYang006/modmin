@@ -15,6 +15,7 @@ import { sanitizeRichTextHtml, serializeRichTextHtmlForStorage } from '@/runtime
 interface RichTextEditorProps {
   value?: string
   disabled?: boolean
+  active?: boolean
   collectionName?: string
   fieldKey?: string
   onChange: (value: string) => void
@@ -39,6 +40,23 @@ function checkNetworkImageUrl(value: string) {
   return true
 }
 
+function applyDefaultImageWidth(rawHtml: string) {
+  if (typeof document === 'undefined') {
+    return rawHtml
+  }
+
+  const template = document.createElement('template')
+  template.innerHTML = rawHtml
+
+  Array.from(template.content.querySelectorAll('img')).forEach((image) => {
+    if (!image.style.width) {
+      image.style.width = '100%'
+    }
+  })
+
+  return template.innerHTML
+}
+
 function injectImageModalHelp(container: HTMLElement | null) {
   if (!container) return
 
@@ -60,25 +78,8 @@ function injectImageModalHelp(container: HTMLElement | null) {
   })
 }
 
-function applyDefaultImageWidth(rawHtml: string) {
-  if (typeof document === 'undefined') {
-    return rawHtml
-  }
-
-  const template = document.createElement('template')
-  template.innerHTML = rawHtml
-
-  Array.from(template.content.querySelectorAll('img')).forEach((image) => {
-    if (!image.style.width) {
-      image.style.width = '100%'
-    }
-  })
-
-  return template.innerHTML
-}
-
 export function RichTextEditor(props: RichTextEditorProps) {
-  const { disabled, onChange } = props
+  const { active = true, disabled, onChange } = props
   const editorIdRef = useRef(`richtext_${Math.random().toString(36).slice(2)}_${Date.now()}`)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const editorRef = useRef<IDomEditor | null>(null)
@@ -97,12 +98,15 @@ export function RichTextEditor(props: RichTextEditorProps) {
   const lastAppliedDisplayHtmlRef = useRef(sanitizeRichTextHtml(resolvedValue))
   const latestHtmlRef = useRef(value)
   const syncTimerRef = useRef<number | null>(null)
+  const pendingLocalValueRef = useRef('')
+  const editingRef = useRef(false)
 
   function emitChange(rawHtml: string) {
     const htmlWithDefaultImageWidth = applyDefaultImageWidth(rawHtml)
     const sanitizedHtml = serializeRichTextHtmlForStorage(htmlWithDefaultImageWidth)
     latestHtmlRef.current = htmlWithDefaultImageWidth
     lastEmittedHtmlRef.current = sanitizedHtml
+    pendingLocalValueRef.current = sanitizedHtml
     onChangeRef.current(sanitizedHtml)
   }
 
@@ -119,6 +123,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
     const sanitizedHtml = serializeRichTextHtmlForStorage(htmlWithDefaultImageWidth)
     latestHtmlRef.current = htmlWithDefaultImageWidth
     lastEmittedHtmlRef.current = sanitizedHtml
+    pendingLocalValueRef.current = sanitizedHtml
     onChangeRef.current(sanitizedHtml)
     return sanitizedHtml
   }
@@ -266,6 +271,8 @@ export function RichTextEditor(props: RichTextEditorProps) {
             return
           }
 
+          editingRef.current = false
+
           if (syncTimerRef.current !== null) {
             window.clearTimeout(syncTimerRef.current)
             syncTimerRef.current = null
@@ -273,6 +280,9 @@ export function RichTextEditor(props: RichTextEditorProps) {
 
           emitChange(currentEditor.getHtml())
         }, 0)
+      },
+      onFocus: () => {
+        editingRef.current = true
       },
     }),
     [],
@@ -285,6 +295,22 @@ export function RichTextEditor(props: RichTextEditorProps) {
     const displayMatchesCurrentValue = nextDisplayStorageValue === nextValue
     const editor = editorRef.current
 
+    if (editingRef.current && active) {
+      if (pendingLocalValueRef.current && nextValue === pendingLocalValueRef.current) {
+        pendingLocalValueRef.current = ''
+        lastEmittedHtmlRef.current = nextValue
+        lastAppliedDisplayHtmlRef.current = nextDisplayValue
+      }
+      return
+    }
+
+    if (pendingLocalValueRef.current && nextValue === pendingLocalValueRef.current) {
+      pendingLocalValueRef.current = ''
+      lastEmittedHtmlRef.current = nextValue
+      lastAppliedDisplayHtmlRef.current = nextDisplayValue
+      return
+    }
+
     if (
       editor &&
       displayMatchesCurrentValue &&
@@ -296,7 +322,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
       lastEmittedHtmlRef.current = nextValue
       lastAppliedDisplayHtmlRef.current = nextDisplayValue
     }
-  }, [value, resolvedValue])
+  }, [active, value, resolvedValue])
 
   useEffect(() => {
     registerRichTextEditorState(editorIdRef.current, props.fieldKey || '', flushCurrentEditor)
@@ -344,7 +370,12 @@ export function RichTextEditor(props: RichTextEditorProps) {
 
       flushCurrentEditor()
 
-      editorRef.current?.destroy()
+      try {
+        editorRef.current?.destroy()
+      } catch {
+        // destroy may throw if editor DOM is already partially detached
+      }
+
       editorRef.current = null
     }
   }, [])

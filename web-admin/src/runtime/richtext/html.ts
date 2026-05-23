@@ -4,6 +4,8 @@ const ALLOWED_TAGS = new Set([
   'blockquote',
   'br',
   'code',
+  'col',
+  'colgroup',
   'div',
   'em',
   'h1',
@@ -13,6 +15,7 @@ const ALLOWED_TAGS = new Set([
   'hr',
   'i',
   'img',
+  'input',
   'li',
   'ol',
   'p',
@@ -32,24 +35,36 @@ const ALLOWED_TAGS = new Set([
 
 const ALLOWED_ATTRIBUTES = new Set([
   'alt',
+  'align',
+  'checked',
+  'class',
   'colspan',
+  'contenteditable',
   'data-modmin-content-type',
   'data-modmin-file-id',
   'data-modmin-full-path',
   'data-modmin-name',
   'data-modmin-path',
   'data-modmin-size',
+  'data-w-e-type',
+  'disabled',
   'height',
   'href',
   'loading',
   'rel',
   'rowspan',
   'src',
+  'span',
   'style',
   'target',
   'title',
+  'type',
+  'valign',
   'width',
 ])
+
+const TABLE_DIMENSION_TAGS = new Set(['table', 'td', 'th', 'col'])
+const TEXT_ALIGN_TAGS = new Set(['p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'li', 'td', 'th'])
 
 function isSafeHref(value: string) {
   const trimmed = value.trim().toLowerCase()
@@ -79,6 +94,28 @@ function isSafeCssSizeValue(value: string) {
   return trimmed === 'auto' || /^\d{1,4}(\.\d{1,2})?(%|px)?$/.test(trimmed)
 }
 
+function isSafeCssLengthValue(value: string) {
+  const trimmed = value.trim().toLowerCase()
+  return trimmed === '0' || /^\d{1,4}(\.\d{1,2})?(px|%)$/.test(trimmed)
+}
+
+function isSafeTextAlignValue(value: string) {
+  return ['left', 'center', 'right', 'justify'].includes(value.trim().toLowerCase())
+}
+
+function isSafeVerticalAlignValue(value: string) {
+  return ['top', 'middle', 'bottom', 'baseline'].includes(value.trim().toLowerCase())
+}
+
+function isSafeTableLayoutValue(value: string) {
+  return ['auto', 'fixed'].includes(value.trim().toLowerCase())
+}
+
+function isSafeMarginValue(value: string) {
+  const trimmed = value.trim().toLowerCase()
+  return trimmed === 'auto' || isSafeCssLengthValue(trimmed)
+}
+
 function sanitizeStyleAttribute(value: string, tagName: string) {
   const declarations = value
     .split(';')
@@ -99,11 +136,39 @@ function sanitizeStyleAttribute(value: string, tagName: string) {
     }
 
     if (
-      tagName === 'img' &&
+      (tagName === 'img' || TABLE_DIMENSION_TAGS.has(tagName)) &&
       (property === 'width' || property === 'height' || property === 'max-width') &&
       isSafeCssSizeValue(propertyValue)
     ) {
       safeDeclarations.push(`${property}: ${propertyValue}`)
+      continue
+    }
+
+    if (TEXT_ALIGN_TAGS.has(tagName) && property === 'text-align' && isSafeTextAlignValue(propertyValue)) {
+      safeDeclarations.push(`${property}: ${propertyValue.trim().toLowerCase()}`)
+      continue
+    }
+
+    if (
+      (tagName === 'td' || tagName === 'th') &&
+      property === 'vertical-align' &&
+      isSafeVerticalAlignValue(propertyValue)
+    ) {
+      safeDeclarations.push(`${property}: ${propertyValue.trim().toLowerCase()}`)
+      continue
+    }
+
+    if (tagName === 'table' && property === 'table-layout' && isSafeTableLayoutValue(propertyValue)) {
+      safeDeclarations.push(`${property}: ${propertyValue.trim().toLowerCase()}`)
+      continue
+    }
+
+    if (
+      tagName === 'table' &&
+      (property === 'margin-left' || property === 'margin-right') &&
+      isSafeMarginValue(propertyValue)
+    ) {
+      safeDeclarations.push(`${property}: ${propertyValue.trim().toLowerCase()}`)
     }
   }
 
@@ -112,6 +177,10 @@ function sanitizeStyleAttribute(value: string, tagName: string) {
 
 function isSafeDimension(value: string) {
   return /^\d{1,4}(%|px)?$/.test(value.trim())
+}
+
+function isSafeInteger(value: string) {
+  return /^\d{1,3}$/.test(value.trim())
 }
 
 function isSafeDataAttribute(attributeName: string, value: string) {
@@ -154,11 +223,67 @@ function sanitizeNode(node: Node) {
     return
   }
 
+  if (tagName === 'input') {
+    const parent = element.parentElement
+    const isV5Todo = parent?.tagName === 'DIV' && parent.getAttribute('data-w-e-type') === 'todo'
+    const isV4LegacyTodo =
+      parent?.tagName === 'SPAN' &&
+      parent?.parentElement?.tagName === 'LI' &&
+      parent?.parentElement?.parentElement?.tagName === 'UL'
+
+    if (!isV5Todo && !isV4LegacyTodo) {
+      element.parentNode?.removeChild(element)
+      return
+    }
+  }
+
   for (const attribute of Array.from(element.attributes)) {
     const attributeName = attribute.name.toLowerCase()
 
     if (!ALLOWED_ATTRIBUTES.has(attributeName)) {
       element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'class') {
+      if (tagName !== 'ul' || attribute.value.trim() !== 'w-e-todo') {
+        element.removeAttribute(attribute.name)
+      }
+      continue
+    }
+
+    if (attributeName === 'contenteditable') {
+      if (tagName !== 'span' || attribute.value !== 'false') {
+        element.removeAttribute(attribute.name)
+      }
+      continue
+    }
+
+    if (attributeName === 'type') {
+      if (tagName !== 'input' || attribute.value !== 'checkbox') {
+        element.removeAttribute(attribute.name)
+      }
+      continue
+    }
+
+    if (attributeName === 'checked') {
+      if (tagName !== 'input') {
+        element.removeAttribute(attribute.name)
+      }
+      continue
+    }
+
+    if (attributeName === 'data-w-e-type') {
+      if (tagName !== 'div' || attribute.value !== 'todo') {
+        element.removeAttribute(attribute.name)
+      }
+      continue
+    }
+
+    if (attributeName === 'disabled') {
+      if (tagName !== 'input') {
+        element.removeAttribute(attribute.name)
+      }
       continue
     }
 
@@ -171,12 +296,35 @@ function sanitizeNode(node: Node) {
       (attributeName === 'src' ||
         attributeName === 'alt' ||
         attributeName === 'title' ||
-        attributeName === 'width' ||
-        attributeName === 'height' ||
         attributeName === 'loading' ||
         attributeName.startsWith('data-modmin-')) &&
       tagName !== 'img'
     ) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if ((attributeName === 'width' || attributeName === 'height') && tagName !== 'img' && !TABLE_DIMENSION_TAGS.has(tagName)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'align' && !TEXT_ALIGN_TAGS.has(tagName) && tagName !== 'table') {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'valign' && tagName !== 'td' && tagName !== 'th') {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'span' && tagName !== 'col') {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if ((attributeName === 'colspan' || attributeName === 'rowspan') && tagName !== 'td' && tagName !== 'th') {
       element.removeAttribute(attribute.name)
       continue
     }
@@ -202,6 +350,21 @@ function sanitizeNode(node: Node) {
     }
 
     if ((attributeName === 'width' || attributeName === 'height') && !isSafeDimension(attribute.value)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'align' && !isSafeTextAlignValue(attribute.value)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if (attributeName === 'valign' && !isSafeVerticalAlignValue(attribute.value)) {
+      element.removeAttribute(attribute.name)
+      continue
+    }
+
+    if ((attributeName === 'span' || attributeName === 'colspan' || attributeName === 'rowspan') && !isSafeInteger(attribute.value)) {
       element.removeAttribute(attribute.name)
       continue
     }

@@ -6,7 +6,7 @@ import type { RcFile, UploadFile } from 'antd/es/upload/interface'
 import type { DictOption, RuntimeField } from '@/types/runtime'
 import { getFieldTypeDefinition } from '@/runtime/fieldTypes/registry'
 import { RelationDetailTrigger } from '@/components/common/RelationDetailTrigger'
-import { RichTextEditor } from '@/components/common/RichTextEditor'
+import { RichTextFieldEditor } from '@/components/common/RichTextFieldEditor'
 import { RichTextViewer } from '@/components/common/RichTextViewer'
 import {
   buildMultiPolyRelationDetailRecords,
@@ -816,11 +816,12 @@ function richtextFormRenderer(props: FormRendererProps) {
   return (
     <div key={props.field.fieldKey} className="field-stack">
       <span>{props.field.label}</span>
-      <RichTextEditor
+      <RichTextFieldEditor
         value={typeof props.value === 'string' ? props.value : ''}
         disabled={props.field.readonly === true}
         collectionName={props.collectionName}
         fieldKey={props.field.fieldKey}
+        fieldLabel={props.field.label}
         onChange={props.onChange}
       />
       {renderFieldHelpText(props.field, buildLengthHelpText(props.field))}

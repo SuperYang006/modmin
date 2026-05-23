@@ -3237,6 +3237,16 @@ a {
   overflow: visible;
 }
 
+.runtime-richtext-editor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  border: 1px solid #c8d7e1;
+  pointer-events: none;
+  z-index: 14;
+}
+
 .runtime-richtext-editor.is-disabled {
   background: #f5f7fa;
 }
@@ -3244,6 +3254,7 @@ a {
 .runtime-richtext-toolbar {
   position: relative;
   border-bottom: 1px solid #e4ebf2;
+  border-radius: 11px 11px 0 0;
   background: #f8fafc;
   z-index: 12;
 }
@@ -3272,20 +3283,76 @@ a {
 }
 
 .runtime-richtext-editable {
-  height: 320px;
+  height: 520px;
+  border-radius: 0 0 11px 11px;
+  overflow: hidden;
 }
 
 .runtime-richtext-editable .w-e-text-container {
-  height: 320px !important;
-  min-height: 320px !important;
-  overflow: visible;
-  overscroll-behavior: contain;
+  height: 520px !important;
+  min-height: 520px !important;
+  overflow: hidden;
+  overscroll-behavior: auto;
 }
 
 .runtime-richtext-editable .w-e-scroll {
-  height: 320px;
+  height: 520px;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
+}
+
+.runtime-richtext-drawer .ant-drawer-body {
+  padding: 16px;
+}
+
+.runtime-richtext-drawer .runtime-richtext-editable {
+  height: calc(100vh - 176px);
+  min-height: 420px;
+}
+
+.runtime-richtext-drawer .runtime-richtext-editable .w-e-text-container {
+  height: calc(100vh - 176px) !important;
+  min-height: 420px !important;
+}
+
+.runtime-richtext-drawer .runtime-richtext-editable .w-e-scroll {
+  height: calc(100vh - 176px);
+  min-height: 420px;
+}
+
+.runtime-richtext-field {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  min-height: 96px;
+}
+
+.runtime-richtext-field.is-disabled {
+  opacity: 0.72;
+}
+
+.runtime-richtext-field-preview {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #c8d7e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #3b4859;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.runtime-richtext-field-preview > span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.runtime-richtext-field-preview .ant-empty {
+  margin: 4px 0;
 }
 
 .runtime-richtext-editable img,
@@ -3344,9 +3411,13 @@ a {
 }
 
 .runtime-richtext-viewer table {
-  width: 100%;
+  max-width: 100%;
   margin: 10px 0;
   border-collapse: collapse;
+}
+
+.runtime-richtext-viewer table:not([width]):not([style*="width"]) {
+  width: 100%;
 }
 
 .runtime-richtext-viewer th,
