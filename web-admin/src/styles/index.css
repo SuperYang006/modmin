@@ -1,0 +1,28 @@
+/*
+ * styles/index.css — 样式聚合入口
+ *
+ * 加载顺序：
+ * 1. tokens.css      —— 设计变量（必须最先，后续文件依赖它）
+ * 2. reset.css       —— 轻量基础重置
+ * 3. antd-overrides  —— Ant Design 局部覆盖
+ * 4. layout.css      —— 页面壳层、导航结构
+ * 5. primitives.css  —— UI primitive 公共样式
+ * 6. runtime.css     —— 运行时 CRUD 页面
+ * 7. editors.css     —— 富文本 / Markdown / 上传
+ * 8. auth.css        —— 认证页
+ * 9. config.css      —— 模型工作台 / 配置页
+ * 10. dashboard.css  —— 控制台首页
+ * 11. global.css     —— 迁移期遗留样式（只读，不再扩展）
+ */
+
+@import './tokens.css';
+@import './reset.css';
+@import './antd-overrides.css';
+@import './layout.css';
+@import './primitives.css';
+@import './runtime.css';
+@import './editors.css';
+@import './auth.css';
+@import './config.css';
+@import './dashboard.css';
+@import './global.css';

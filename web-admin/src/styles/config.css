@@ -1,0 +1,1200 @@
+/* styles/config.css — 模型工作台 / 配置页样式 */
+
+/* ---------- ModelEditPage / ModelCreatePage — 页面壳高度固定（模型编辑器需要字段列表内部滚动） ---------- */
+
+/* app-content-model-editor 已设 overflow:hidden，PageShell 需要撑满并锁死高度 */
+.app-content-model-editor .modmin-page-shell {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- ModelEditPage / ModelCreatePage — 字段设计卡片高度填充 ---------- */
+.model-editor-fields-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.model-editor-fields-card > .modmin-panel-card__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 让 Row 和列同样填满高度 */
+.model-editor-fields-card > .modmin-panel-card__body > .ant-row {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.model-editor-fields-card > .modmin-panel-card__body > .ant-row > .ant-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+/* ---------- RoleManagementPage — 内置角色标签 ---------- */
+.role-builtin-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border: 1px solid var(--color-primary-border);
+}
+
+/* ---------- RolePermissionDrawer — 角色名标签 / 未保存提示标签 ---------- */
+.role-name-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border: 1px solid var(--color-primary-border);
+}
+
+/* 字段列表「加入搜索」激活态 — 跟随主题色 */
+.model-field-search-tag--active.ant-tag {
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-border);
+}
+/* ---------- ModelCreatePage / ModelEditPage — 基本信息区 ---------- */
+.model-editor-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.model-editor-meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.model-editor-meta-label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.model-editor-meta-error {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--color-error);
+}
+
+@media (max-width: 1100px) {
+  .model-editor-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ========== K1 模型列表页（ConfigPage） ========== */
+
+.config-model-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.config-model-table-toolbar-main {
+  min-width: 0;
+}
+
+.config-model-page .ant-table-wrapper {
+  width: 100%;
+}
+
+.config-model-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-disabled);
+  cursor: grab;
+}
+
+.config-model-drag-handle.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.config-model-row.is-dragging td {
+  opacity: 0.55;
+}
+
+.config-model-row.is-drag-over-top td {
+  border-top: 2px solid var(--color-primary) !important;
+}
+
+.config-model-row.is-drag-over-bottom td {
+  border-bottom: 2px solid var(--color-primary) !important;
+}
+
+@media (max-width: 900px) {
+  .config-model-table-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+/* ========== I3 操作日志页 ========== */
+
+.audit-log-json-block {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.audit-log-json-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-layout);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.audit-log-json-block-head h4 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+.audit-log-copy-entry {
+  margin: 0 !important;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.audit-log-preview-btn {
+  padding: 0 !important;
+}
+
+.audit-log-json-content-wrap {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.audit-log-json-hint {
+  padding: 0 14px 10px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.audit-log-json-content {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--bg-subtle);
+}
+
+.audit-log-diff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.audit-log-diff-empty {
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+}
+
+.audit-log-diff-item {
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: var(--bg-container);
+  overflow: hidden;
+}
+
+.audit-log-diff-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+}
+
+.audit-log-diff-title strong {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.audit-log-diff-title span {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.audit-log-diff-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+.audit-log-diff-column {
+  min-width: 0;
+}
+
+.audit-log-diff-label {
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+}
+
+.audit-log-diff-value {
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.audit-log-modal-content {
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: var(--bg-subtle);
+}
+
+.audit-log-modal-pre {
+  margin: 0;
+  padding: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.audit-log-modal-diff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+}
+
+.audit-log-modal-diff-item {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: var(--bg-container);
+  overflow: hidden;
+}
+
+.audit-log-modal-diff-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.audit-log-modal-diff-column {
+  min-width: 0;
+  padding: 12px;
+}
+
+.audit-log-modal-diff-column + .audit-log-modal-diff-column {
+  border-left: 1px solid var(--border-light);
+}
+
+.audit-log-modal-diff-value {
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.audit-log-secondary-section {
+  border-top: 1px solid var(--border-light);
+  padding-top: 4px;
+}
+
+.audit-log-empty-diff {
+  border: 1px dashed var(--border-secondary);
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  padding: 14px 16px;
+}
+
+.audit-log-empty-diff h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.audit-log-empty-diff p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  line-height: 1.6;
+}
+
+.audit-log-filter-form {
+  margin-bottom: 16px;
+}
+
+.audit-log-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.audit-log-filter-grid .ant-form-item {
+  margin-bottom: 0;
+}
+
+.audit-log-filter-time {
+  grid-column: span 2;
+}
+
+.audit-log-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.audit-log-table-wrap {
+  min-height: 0;
+}
+
+.audit-log-secondary-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.audit-log-secondary-head h4 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.audit-log-secondary-head span {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* ========== 图标选择器（ModelIconPicker） ========== */
+
+.model-icon-picker-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-icon-picker-overlay .ant-popover-inner {
+  padding: 12px !important;
+}
+
+.model-icon-picker-pop {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.model-icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.model-icon-picker-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.model-icon-picker-item:hover {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.model-icon-picker-item-active {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.model-icon-picker-empty {
+  grid-column: 1 / -1;
+  padding: 20px 8px;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ========== 字段配置弹窗（FieldConfigModal） ========== */
+
+.field-config-modal .ant-modal-content,
+.field-config-modal .ant-modal-body {
+  overflow-x: hidden;
+}
+
+.field-config-modal .ant-modal-body {
+  max-height: calc(100vh - 180px);
+  overflow-y: hidden;
+}
+
+.field-config-modal-scroll {
+  max-height: calc(100vh - 260px);
+  padding-right: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.field-config-enum-row {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.field-config-enum-row .ant-input {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+
+.field-config-enum-row .ant-space-item {
+  min-width: 0;
+}
+
+.field-config-actions-wrap {
+  width: 100%;
+}
+
+.field-config-relation-card {
+  border-radius: 14px;
+  border: 1px solid var(--border-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.field-config-relation-card .ant-card-head {
+  min-height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+}
+
+.field-config-relation-card .ant-card-body {
+  padding: 16px;
+}
+
+.field-config-relation-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  font-weight: 600;
+}
+
+.field-config-relation-card-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.field-config-relation-card-subtitle {
+  font-size: 12px;
+}
+
+.field-type-help-trigger {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--color-text-secondary);
+}
+
+.field-type-help-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.field-config-code-input {
+  font-family: "SFMono-Regular", "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
+}
+
+.field-config-code-input textarea {
+  min-height: 180px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  background: #0f172a !important;
+  color: #dbe7ff !important;
+  line-height: 1.65 !important;
+}
+
+.field-config-code-input textarea::placeholder {
+  color: rgba(219, 231, 255, 0.48) !important;
+}
+
+.field-config-modal .ant-row,
+.field-config-modal .ant-col,
+.field-config-modal .ant-form-item,
+.field-config-modal .ant-space,
+.field-config-modal .ant-space-item,
+.field-config-modal .ant-select,
+.field-config-modal .ant-input-number {
+  min-width: 0;
+}
+
+/* ========== 字段弹窗（FieldTypeModal / FieldConfigModal 内部） ========== */
+
+.model-field-modal-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.model-field-modal-type-hero {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 18px;
+  background: var(--color-primary-bg);
+}
+
+.model-field-modal-type-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.model-field-modal-type-content strong {
+  color: var(--color-text);
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.model-field-modal-type-content span {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.model-field-modal-section {
+  padding: 16px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 16px;
+  background: var(--bg-container);
+}
+
+.model-field-modal-section-head {
+  margin-bottom: 14px;
+}
+
+.model-field-modal-section-head h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.model-field-modal-span-full {
+  grid-column: 1 / -1;
+}
+
+.model-field-modal-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.model-field-modal-toggle {
+  min-height: 56px;
+  padding: 0 14px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 14px;
+  background: var(--bg-container);
+}
+
+.model-field-modal-sort-direction {
+  padding: 12px 14px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 14px;
+  background: var(--bg-container);
+}
+
+/* ========== 字段工作台（ModelFieldWorkspace） ========== */
+
+.model-field-workspace {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  flex: 1;
+  border: 1px solid var(--border-secondary);
+  border-radius: 18px;
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.model-field-workspace-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border-secondary);
+  background: var(--bg-container);
+}
+
+.model-field-workspace-body {
+  flex: 1;
+  min-height: 0;
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  padding: 14px 18px 18px;
+}
+
+.model-field-workspace-body .ant-list-item {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 18px 16px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 16px;
+  background: var(--bg-container);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transform-origin: center center;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.model-field-workspace-body .ant-list-item:last-child {
+  margin-bottom: 0;
+}
+
+.model-field-workspace-body .ant-list-item.is-dragging {
+  opacity: 0.68;
+  cursor: grabbing;
+  transform: scale(0.992);
+}
+
+.model-field-workspace-body .ant-list-item.is-drag-over {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-bg);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  position: relative;
+}
+
+.model-field-workspace-body .ant-list-item.is-drag-over::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: -2px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+  animation: model-field-insert-line 0.2s ease;
+}
+
+@keyframes model-field-insert-line {
+  0% { opacity: 0; transform: scaleX(0.86); }
+  100% { opacity: 1; transform: scaleX(1); }
+}
+
+.model-field-workspace-body .ant-list-item-meta {
+  align-items: flex-start;
+}
+
+.model-field-workspace-body .ant-list-item-action {
+  margin-inline-start: 20px;
+}
+
+.model-field-sort-actions {
+  padding: 2px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 10px;
+  background: var(--bg-subtle);
+}
+
+.model-field-sort-actions .ant-btn {
+  color: var(--color-text-secondary);
+}
+
+/* ---------- 字段列表 item ---------- */
+.model-field-item-title {
+  row-gap: 8px;
+}
+
+.model-field-item-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+}
+
+.model-field-item-index {
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.model-field-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.model-field-item-name {
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.model-field-item-title .ant-tag {
+  margin-inline-end: 0;
+}
+
+.model-field-type-tag {
+  font-weight: 600;
+}
+
+.model-field-item-summary {
+  width: 100%;
+}
+
+.model-field-item-summary-line {
+  display: block;
+  width: 100%;
+  padding-left: 14px;
+  position: relative;
+  color: var(--color-text-secondary) !important;
+  line-height: 1.7;
+}
+
+.model-field-item-summary-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-text-tertiary);
+}
+
+.model-field-workspace-empty {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ========== 字段类型选择面板（右侧） ========== */
+
+.model-field-type-panel {
+  flex: 1;
+  min-height: 0;
+  position: sticky;
+  top: 88px;
+}
+
+.model-field-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  height: 100%;
+}
+
+.model-field-type-panel-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 18px;
+}
+
+.model-field-type-groups {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  padding: 2px 4px 0 0;
+}
+
+.model-field-type-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 18px;
+  background: var(--bg-subtle);
+}
+
+.model-field-type-group-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.model-field-type-group-head .ant-typography {
+  margin-bottom: 0;
+}
+
+.model-field-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.model-field-type-button {
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 14px 12px !important;
+  border-radius: 16px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  font-weight: 600;
+}
+
+.model-field-type-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.model-field-type-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.model-field-type-button-title {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.model-field-type-button-copy {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.82;
+}
+
+/* 字段类型色调 — 语义固定色，不随主题变 */
+.model-field-type-button-cyan    { border-color: #92d5ff; background: #f0faff; color: #0b6aa2; }
+.model-field-type-button-blue    { border-color: #a7c8ff; background: #f3f8ff; color: #2458c5; }
+.model-field-type-button-purple  { border-color: #d3b4ff; background: #faf5ff; color: #7347c8; }
+.model-field-type-button-gold    { border-color: #f3d27a; background: #fff9ea; color: #9b6b00; }
+.model-field-type-button-geekblue{ border-color: #b8c7ff; background: #f4f6ff; color: #4655c8; }
+.model-field-type-button-magenta { border-color: #f2b0d0; background: #fff4fa; color: #b63872; }
+.model-field-type-button-green   { border-color: #abd9b8; background: #f2fbf4; color: #2d7b48; }
+.model-field-type-button-volcano { border-color: #ffbb96; background: #fff5f0; color: #ba4a1b; }
+.model-field-type-button-lime    { border-color: #c9e88d; background: #f8ffea; color: #5f8f12; }
+
+/* ========== 系统字段配置（SystemFieldCard） ========== */
+
+.model-system-field-card {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.model-system-field-collapse {
+  border: 1px solid var(--border-secondary);
+  border-radius: 14px;
+  background: var(--bg-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.model-system-field-collapse .ant-collapse-header {
+  align-items: center !important;
+  padding: 10px 12px !important;
+}
+
+.model-system-field-collapse .ant-collapse-content-box {
+  padding: 12px 12px 14px !important;
+}
+
+.model-system-field-help {
+  color: var(--color-text-tertiary);
+}
+
+.model-system-field-help:hover {
+  color: var(--color-text) !important;
+}
+
+.model-system-field-popover .ant-popover-inner {
+  border-radius: 12px;
+}
+
+.model-system-field-help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.model-system-field-desc {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.model-system-field-help-list strong {
+  color: var(--color-text);
+}
+
+.model-system-field-search-box {
+  padding: 10px 12px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  background: var(--bg-container);
+}
+
+.model-system-field-search-title {
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.model-system-field-search-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.model-system-field-search-tip {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.model-system-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.model-system-field-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  background: var(--bg-container);
+}
+
+.model-system-field-item span {
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.model-system-field-item-select {
+  grid-column: span 2;
+}
+
+.model-system-field-item-select .ant-select {
+  min-width: 160px;
+}
+
+/* ========== 搜索字段配置（SearchFieldCard） ========== */
+
+.model-search-field-help {
+  color: var(--color-text-tertiary);
+}
+
+.model-search-field-help:hover {
+  color: var(--color-text) !important;
+}
+
+.model-search-field-popover .ant-popover-inner {
+  border-radius: 12px;
+}
+
+.model-search-field-desc {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.model-search-field-card {
+  margin-top: 12px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.model-search-field-card .ant-card-head {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.model-search-field-card .ant-card-body {
+  padding: 12px;
+}
+
+.model-search-field-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.model-search-field-popover-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.model-search-field-tip {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ========== 角色权限抽屉（RolePermissionDrawer 内部） ========== */
+
+.role-perm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 0 16px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-container);
+  z-index: 2;
+}
+
+.role-perm-col-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.role-perm-model-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.role-perm-model-name {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.role-perm-model-code {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+.role-perm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.role-perm-footer-meta {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.role-perm-footer-meta strong {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 2px;
+}

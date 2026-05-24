@@ -6,26 +6,30 @@ import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import { App } from '@/app/App'
-import '@/styles/global.css'
+import { buildAntdTheme, useThemePreset, themeStore } from '@/theme'
+import '@/styles/index.css'
+
+if (import.meta.env.DEV) {
+  ;(window as unknown as Record<string, unknown>).themeStore = themeStore
+}
 
 dayjs.locale('zh-cn')
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <ConfigProvider
-      locale={zhCN}
-      theme={{
-        token: {
-          colorPrimary: '#1677ff',
-          borderRadius: 10,
-        },
-      }}
-    >
+function Root() {
+  const preset = useThemePreset()
+  return (
+    <ConfigProvider locale={zhCN} theme={buildAntdTheme(preset)}>
       <AntdApp>
         <HashRouter>
           <App />
         </HashRouter>
       </AntdApp>
     </ConfigProvider>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <Root />
   </React.StrictMode>,
 )

@@ -361,6 +361,149 @@ services/
 5. 表单、表格、抽屉、弹窗保持一致交互。
 6. 错误提示必须靠近操作区域，长页面需要底部汇总或定位能力。
 
+### UI 体系约束
+
+本项目已完成 UI 重构，建立了统一的 primitive / token / 样式文件体系。**所有新页面和组件必须在此体系内开发，不得绕过。**
+
+#### 页面结构：必须使用 Primitive
+
+新页面的顶层结构固定为：
+
+```tsx
+import { PageShell, PageHeader, PanelCard } from '@/components/ui'
+
+export function MyPage() {
+  return (
+    <PageShell>
+      <PageHeader title="页面标题" description="副标题" extra={<Button>操作</Button>} />
+      <PanelCard>
+        {/* 内容 */}
+      </PanelCard>
+    </PageShell>
+  )
+}
+```
+
+禁止的替代写法：
+
+```tsx
+// ❌ 不允许
+<div className="config-page">
+  <Card title="xxx">...</Card>
+</div>
+
+// ❌ 不允许
+<div style={{ padding: 24 }}>
+  <h2>页面标题</h2>
+  ...
+</div>
+```
+
+可用的 primitive 组件（均从 `@/components/ui` 导入）：
+
+- `PageShell` — 页面外壳（所有页面的根容器）
+- `PageHeader` — 标题区，props: `title` / `description` / `extra`
+- `PanelCard` — 内容面板，props: `title` / `extra` / `compact` / `noPadding`
+- `SectionHeader` — 区块标题
+- `ToolbarRow` — 工具栏行，props: `left` / `right`
+- `DrawerFooterBar` — 抽屉底部操作栏
+- `EmptyState` — 空状态
+- `StatusBadge` — 状态徽标，prop: `tone`（neutral/info/success/warning/error/processing）
+
+#### CSS Token：禁止硬编码品牌色
+
+所有颜色必须通过 CSS 变量引用，**严禁在 CSS 或 inline style 里硬编码品牌色**。
+
+```css
+/* ✅ 正确 */
+color: var(--color-primary);
+background: var(--color-primary-bg);
+border-color: var(--color-primary-border);
+background: var(--bg-container);
+color: var(--color-text-secondary);
+border: 1px solid var(--border-light);
+
+/* ❌ 禁止 */
+color: #1677ff;
+background: #e6f4ff;
+border-color: #91caff;
+```
+
+常用 token 速查：
+
+| 用途 | 变量 |
+| --- | --- |
+| 主色 | `--color-primary` |
+| 主色 hover | `--color-primary-hover` |
+| 主色浅背景 | `--color-primary-bg` |
+| 主色边框 | `--color-primary-border` |
+| 页面背景 | `--bg-layout` |
+| 容器背景 | `--bg-container` |
+| 微妙背景 | `--bg-subtle` |
+| 默认边框 | `--border-default` |
+| 次级边框 | `--border-secondary` |
+| 浅边框 | `--border-light` |
+| 主文字 | `--color-text` |
+| 次级文字 | `--color-text-secondary` |
+| 三级文字 | `--color-text-tertiary` |
+| 禁用文字 | `--color-text-disabled` |
+| 成功色 | `--color-success` |
+| 警告色 | `--color-warning` |
+| 错误色 | `--color-error` |
+
+**例外**：以下颜色允许硬编码，因为它们是语义固定色，不随主题变化：
+
+- 代码块背景 `#24292e`（代码高亮语义）
+- 侧边栏深色渐变（dark 装饰区，待 dark mode 阶段统一）
+- 字段类型标签的色调变体（cyan/purple/gold 等 Ant Design 色板语义色）
+
+**warning / error 语义色也不应跟随主题主色**，使用 `--color-warning` / `--color-error` 变量（三套 preset 中固定不变）。
+
+#### 样式文件：新样式写在哪里
+
+按模块归属写到对应文件，不得写进 `global.css`（已是迁移期只读文件）：
+
+| 模块 | 文件 |
+| --- | --- |
+| 框架壳层（AdminLayout、topbar、sidebar） | `styles/layout.css` |
+| UI primitive 组件 | `styles/primitives.css` |
+| 运行时 CRUD 页面 | `styles/runtime.css` |
+| 编辑器（富文本/Markdown/上传） | `styles/editors.css` |
+| 认证页（登录/无权限） | `styles/auth.css` |
+| 配置工作台（模型编辑器、角色、日志等） | `styles/config.css` |
+| 控制台首页 | `styles/dashboard.css` |
+| 新增独立功能模块 | 新建对应 `styles/<module>.css` 并在 `styles/index.css` 中 `@import` |
+
+#### 主题色切换
+
+不允许在组件内写主题分支判断：
+
+```tsx
+// ❌ 禁止
+const color = themeKey === 'teal-green' ? '#13a8a8' : '#1677ff'
+
+// ✅ 只消费 token，由 CSS 变量自动响应主题
+// CSS: color: var(--color-primary);
+```
+
+需要读取主题状态时使用：
+
+```tsx
+import { useThemeState } from '@/theme/runtime/themeStore'
+import { listPresets } from '@/theme/presets'
+
+const { themeKey, preset } = useThemeState()
+```
+
+需要切换主题时使用：
+
+```tsx
+import { themeStore } from '@/theme/runtime/themeStore'
+themeStore.setThemeKey('teal-green')
+```
+
+新增主题 preset 只需在 `web-admin/src/theme/presets/` 下新建文件并调用 `registerPreset()`，无需修改其他代码。
+
 ### 可访问性和可用性
 
 1. 保存、删除、禁用等危险操作必须有确认。
@@ -388,3 +531,35 @@ npm --prefix web-admin run build
 3. 如果启动了 dev server，最终说明访问地址。
 4. 不再需要的本轮临时进程应停止；用户已有服务不要随意停止。
 5. 如果存在未验证项，必须说明风险和原因。
+
+### UI 变更审查项
+
+涉及前端页面或样式的变更，交付前额外检查以下项目：
+
+#### Primitive 使用
+
+- [ ] 新页面根结构是否使用了 `PageShell + PageHeader + PanelCard`？
+- [ ] 是否有直接使用 `<div className="config-page">` / `<Card title="...">` 等旧写法？
+- [ ] 有无把 primitive 能覆盖的结构改成了私有 div + 自定义样式？
+
+#### Token 使用
+
+- [ ] CSS 中是否存在硬编码的品牌色（`#1677ff`、`#13a8a8`、`#e8690b` 等主色及其衍生色）？
+- [ ] inline style 中是否有硬编码颜色（`style={{ color: '#xxx' }}`）？
+- [ ] 新增的 CSS 变量是否与现有 token 重复？
+
+#### 样式文件归属
+
+- [ ] 新增样式是否写进了 `global.css`（已只读，不允许新增）？
+- [ ] 新增样式是否放进了对应职责文件（`layout` / `runtime` / `editors` / `auth` / `config` / `dashboard`）？
+- [ ] 新建了样式文件时，是否在 `styles/index.css` 中补了 `@import`？
+
+#### 主题响应
+
+- [ ] 新增的颜色相关样式在切换到其他主题（teal-green / warm-orange）后是否仍然正常？
+- [ ] 有无写主题条件分支（`if themeKey === 'xxx'`）而不是通过 token？
+
+#### Ant Design Tag 颜色
+
+- [ ] 有无使用 `<Tag color="blue">` / `<Tag color="orange">` 等 Ant 预设色作为品牌色标签？如有，应替换为 `<span className="...">` + CSS token。
+- [ ] `color="warning"` / `color="error"` / `color="success"` 语义色 Tag 可以保留。

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Button, Drawer, Form, Input, message, Select, Space, Table, Tag } from 'antd'
+import { Button, Drawer, Form, Input, message, Select, Space, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { PageSectionHeader } from '@/components/layout/PageSectionHeader'
+import { PageShell, PageHeader, PanelCard, ConfigDataTable } from '@/components/ui'
 import { listRoles, saveRole } from '@/runtime/loader/roles'
 import type { RoleItem } from '@/runtime/loader/roles'
 import { RolePermissionDrawer } from './components/RolePermissionDrawer'
@@ -90,7 +90,7 @@ export function RoleManagementPage() {
       render: (v: string, record: RoleItem) => (
         <Space size={6}>
           <span>{v}</span>
-          {record.builtin && <Tag color="blue">内置</Tag>}
+          {record.builtin && <span className="role-builtin-tag">内置</span>}
         </Space>
       ),
     },
@@ -123,20 +123,20 @@ export function RoleManagementPage() {
   ]
 
   return (
-    <div className="config-page">
-      <section className="page-card">
-        <PageSectionHeader
-          description="管理系统角色，并为每个角色配置可访问的业务模型权限。超级管理员拥有全量权限。"
-          actions={<Button type="primary" onClick={handleCreate}>新建角色</Button>}
-        />
-        <Table
+    <PageShell>
+      <PageHeader
+        title="角色管理"
+        description="管理系统角色，并为每个角色配置可访问的业务模型权限。超级管理员拥有全量权限。"
+        extra={<Button type="primary" onClick={handleCreate}>新建角色</Button>}
+      />
+      <PanelCard noPadding>
+        <ConfigDataTable<RoleItem>
           rowKey="roleCode"
           loading={loading}
           columns={columns}
           dataSource={roles}
-          pagination={false}
         />
-      </section>
+      </PanelCard>
 
       <Drawer
         title={editingItem ? '编辑角色' : '新建角色'}
@@ -185,6 +185,6 @@ export function RoleManagementPage() {
           onClose={() => setPermDrawer(null)}
         />
       )}
-    </div>
+    </PageShell>
   )
 }

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Button, DatePicker, Descriptions, Drawer, Form, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd'
+import { Button, DatePicker, Descriptions, Drawer, Form, Modal, Select, Space, Tag, Typography, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { PageSectionHeader } from '@/components/layout/PageSectionHeader'
+import { PageShell, PageHeader, PanelCard, ConfigDataTable } from '@/components/ui'
 import { getAuditLogDetail, listAuditLogs, type AuditLogFilters, type AuditLogItem } from '@/runtime/loader/auditLogs'
 import { loadCollectionSchemaDetail } from '@/runtime/loader/loadCollectionSchemaDetail'
 import { listCollectionSchemas } from '@/runtime/loader/listCollectionSchemas'
@@ -393,9 +393,12 @@ export function AuditLogPage() {
   ]
 
   return (
-    <div className="config-page">
-      <section className="page-card">
-        <PageSectionHeader description="查看后台关键写操作和登录结果，支持按时间、事件、资源和结果筛选。" />
+    <PageShell>
+      <PageHeader
+        title="操作日志"
+        description="查看后台关键写操作和登录结果，支持按时间、事件、资源和结果筛选。"
+      />
+      <PanelCard>
         <Form form={form} layout="vertical" className="audit-log-filter-form">
           <div className="audit-log-filter-grid">
             <Form.Item name="eventType" label="事件">
@@ -431,25 +434,20 @@ export function AuditLogPage() {
             </Space>
           </div>
         </Form>
-        <div className="audit-log-table-wrap">
-          <Table
-            rowKey="_id"
-            loading={loading}
-            columns={columns}
-            dataSource={logs}
-            scroll={{ x: 1080, y: 520 }}
-            pagination={{
-              current: pagination.pageNo,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
-              showSizeChanger: true,
-              pageSizeOptions: ['10', '20', '50', '100'],
-              showTotal: (total) => `共 ${total} 条`,
-              onChange: (pageNo, pageSize) => void fetchList(pageNo, pageSize),
-            }}
-          />
-        </div>
-      </section>
+      </PanelCard>
+      <PanelCard noPadding>
+        <ConfigDataTable<AuditLogItem>
+          rowKey="_id"
+          loading={loading}
+          columns={columns}
+          dataSource={logs}
+          scroll={{ x: 1080, y: 520 }}
+          serverPagination={{
+            state: pagination,
+            onChange: (pageNo, pageSize) => void fetchList(pageNo, pageSize),
+          }}
+        />
+      </PanelCard>
 
       <Drawer title="日志详情" open={drawerOpen} width={760} onClose={() => setDrawerOpen(false)} loading={detailLoading}>
         {detail ? (
@@ -503,6 +501,6 @@ export function AuditLogPage() {
           )}
         </div>
       </Modal>
-    </div>
+    </PageShell>
   )
 }

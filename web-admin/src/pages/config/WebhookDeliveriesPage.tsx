@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Alert, Button, DatePicker, Drawer, Empty, Form, Select, Space, Table, message } from 'antd'
+import { Alert, Button, DatePicker, Drawer, Empty, Form, Select, Space, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { PageSectionHeader } from '@/components/layout/PageSectionHeader'
+import { PageShell, PageHeader, PanelCard, ConfigDataTable } from '@/components/ui'
 import { listWebhooks, listWebhookDeliveries, processPendingWebhookDeliveries, retryWebhookDelivery } from '@/runtime/loader/webhooks'
 import type { WebhookDeliveryItem, WebhookItem } from '@/types/schema'
 import { DELIVERY_STATUS_META, WEBHOOK_EVENT_LABEL_MAP, getWebhookEventLabel, getWebhookTargetSummary, renderDeliveryStatus } from './webhookPageShared'
@@ -146,12 +146,13 @@ export function WebhookDeliveriesPage() {
   ]
 
   return (
-    <div className="config-page">
-      <section className="page-card">
-        <PageSectionHeader
-          description="查看 Webhook 的投递执行记录，可按 Webhook 维度筛选和重试。"
-          actions={<Button onClick={() => navigate('/config/webhooks')}>返回 Webhook 配置</Button>}
-        />
+    <PageShell>
+      <PageHeader
+        title="Webhook 投递记录"
+        description="查看 Webhook 的投递执行记录，可按 Webhook 维度筛选和重试。"
+        extra={<Button onClick={() => navigate('/config/webhooks')}>返回 Webhook 配置</Button>}
+      />
+      <PanelCard>
         {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
         <Form form={form} layout="vertical" className="audit-log-filter-form" onFinish={(values) => handleSearch(values)}>
           <div className="audit-log-filter-grid">
@@ -195,29 +196,24 @@ export function WebhookDeliveriesPage() {
             </Space>
           </div>
         </Form>
+      </PanelCard>
+      <PanelCard noPadding>
         {deliveries.length === 0 && !loading ? (
           <Empty description="暂无投递记录" />
         ) : (
-          <div className="audit-log-table-wrap">
-            <Table
-              rowKey="deliveryId"
-              loading={loading}
-              columns={columns}
-              dataSource={deliveries}
-              scroll={{ x: 1200, y: 520 }}
-              pagination={{
-                current: pagination.pageNo,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                pageSizeOptions: ['10', '20', '50', '100'],
-                showTotal: (total) => `共 ${total} 条`,
-                onChange: (pageNo, pageSize) => void loadDeliveries(pageNo, pageSize),
-              }}
-            />
-          </div>
+          <ConfigDataTable<WebhookDeliveryItem>
+            rowKey="deliveryId"
+            loading={loading}
+            columns={columns}
+            dataSource={deliveries}
+            scroll={{ x: 1200, y: 520 }}
+            serverPagination={{
+              state: pagination,
+              onChange: (pageNo, pageSize) => void loadDeliveries(pageNo, pageSize),
+            }}
+          />
         )}
-      </section>
+      </PanelCard>
 
       <Drawer title="投递详情" open={!!detail} width={860} onClose={() => setDetail(null)}>
         {detail ? (
@@ -263,6 +259,6 @@ export function WebhookDeliveriesPage() {
           </Space>
         ) : null}
       </Drawer>
-    </div>
+    </PageShell>
   )
 }

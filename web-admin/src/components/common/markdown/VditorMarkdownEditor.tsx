@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { message } from 'antd'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
+import { useThemeState } from '@/theme/runtime/themeStore'
 import { uploadMarkdownImage } from './vditorAssetUpload'
 import { createVditorOptions } from './vditorConfig'
 
@@ -49,6 +50,8 @@ export function VditorMarkdownEditor(props: VditorMarkdownEditorProps) {
   const onChangeRef = useRef(onChange)
   const collectionNameRef = useRef(collectionName)
   const fieldKeyRef = useRef(fieldKey)
+  const { preset } = useThemeState()
+  const isDark = preset.mode === 'dark'
 
   onChangeRef.current = onChange
   collectionNameRef.current = collectionName
@@ -70,6 +73,7 @@ export function VditorMarkdownEditor(props: VditorMarkdownEditorProps) {
     const { destroy, vditor } = createVditor(containerRef.current, {
       value,
       disabled,
+      isDark,
       collectionName: collectionNameRef.current,
       fieldKey: fieldKeyRef.current,
       onChange: (v) => {
@@ -92,7 +96,7 @@ export function VditorMarkdownEditor(props: VditorMarkdownEditorProps) {
       setVditorReady(false)
       setToolbarTooltip(null)
     }
-  }, [active])
+  }, [active, isDark])
 
   // Sync external value changes without reading getValue() before Vditor internals are ready.
   useEffect(() => {
@@ -196,6 +200,7 @@ function createVditor(
   opts: {
     value: string
     disabled?: boolean
+    isDark?: boolean
     collectionName?: string
     fieldKey?: string
     onChange: (value: string) => void
@@ -205,6 +210,7 @@ function createVditor(
   const vditor = new Vditor(element, {
     ...createVditorOptions({
       value: opts.value,
+      isDark: opts.isDark,
       uploadHandler: async (files) => {
         for (const file of files) {
           try {

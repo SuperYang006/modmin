@@ -1,0 +1,29 @@
+/* styles/reset.css — 轻量基础重置 */
+
+:root {
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  color: var(--color-text);
+  background: var(--bg-layout);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-layout);
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

@@ -1,4 +1,4 @@
-import { Button, Empty, Space, Table } from 'antd'
+import { Button, Empty, Pagination, Space, Table } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
 import type { SortOrder } from 'antd/es/table/interface'
@@ -50,44 +50,29 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
     onRefresh,
     onSortChange,
   } = props
-  const shellRef = useRef<HTMLDivElement | null>(null)
-  const [tableScrollY, setTableScrollY] = useState<number>(420)
-
   const total = result?.pagination.total ?? 0
   const activeSortField = sort?.field || ''
   const activeSortOrder = sort?.order || ''
   const dataSource = (result?.list ?? []) as Array<Record<string, unknown>>
 
+  const shellRef = useRef<HTMLDivElement | null>(null)
+  const [tableScrollY, setTableScrollY] = useState<number>(420)
+
   useEffect(() => {
     const shellElement = shellRef.current
-
     if (!shellElement) {
       return
     }
-
-    const updateTableScrollY = () => {
-      const paginationElement = shellElement.querySelector('.ant-pagination') as HTMLElement | null
-      const paginationHeight = paginationElement?.offsetHeight ?? 56
-      const headerReserve = 56
-      const nextHeight = Math.max(shellElement.clientHeight - paginationHeight - headerReserve, 240)
-      setTableScrollY(nextHeight)
+    const headerReserve = 56
+    const update = () => {
+      const next = Math.max(shellElement.clientHeight - headerReserve, 160)
+      setTableScrollY(next)
     }
-
-    updateTableScrollY()
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateTableScrollY()
-    })
-
-    resizeObserver.observe(shellElement)
-
-    window.addEventListener('resize', updateTableScrollY)
-
-    return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', updateTableScrollY)
-    }
-  }, [fields.length, total, pageSize, pageNo, loading])
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(shellElement)
+    return () => ro.disconnect()
+  }, [])
 
   const columns: ColumnsType<Record<string, unknown>> = [
     ...fields.map((field) => ({
@@ -176,8 +161,6 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
               {action.label}
             </Button>
           ))}
-          <Button size="small">导入数据</Button>
-          <Button size="small">导出数据</Button>
         </Space>
         <Space size={8} wrap>
           <Button size="small" onClick={onRefresh} disabled={loading}>
@@ -230,19 +213,22 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
               order: sorter.order === 'ascend' ? 'asc' : 'desc',
             })
           }}
-          pagination={{
-            current: pageNo,
-            pageSize,
-            total,
-            showSizeChanger: true,
-            pageSizeOptions: [10, 20, 50, 100],
-            showTotal: (nextTotal) => `共 ${nextTotal} 条记录`,
-            onChange: (nextPageNo, nextPageSize) => {
-              if (nextPageSize !== pageSize) {
-                onPageSizeChange(nextPageSize)
-              }
-              onPageChange(nextPageNo)
-            },
+          pagination={false}
+        />
+      </div>
+      <div className="runtime-data-table-pagination">
+        <Pagination
+          current={pageNo}
+          pageSize={pageSize}
+          total={total}
+          showSizeChanger
+          pageSizeOptions={[10, 20, 50, 100]}
+          showTotal={(nextTotal) => `共 ${nextTotal} 条记录`}
+          onChange={(nextPageNo, nextPageSize) => {
+            if (nextPageSize !== pageSize) {
+              onPageSizeChange(nextPageSize)
+            }
+            onPageChange(nextPageNo)
           }}
         />
       </div>

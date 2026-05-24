@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { message, Modal, Result, Skeleton } from 'antd'
+import { PageShell, PanelCard } from '@/components/ui'
 import { RuntimeDataTable } from '@/components/common/RuntimeDataTable'
 import { RuntimeRecordDetail } from '@/components/common/RuntimeRecordDetail'
 import { RuntimeRecordForm } from '@/components/common/RuntimeRecordForm'
@@ -241,6 +242,8 @@ export function GeneratedCrudPage() {
       setLoading(true)
       setError('')
       setListResult(null)
+      setPageNo(1)
+      setPageSize(10)
 
       const response = await loadPageRuntimeSchema(pageCode)
 
@@ -287,7 +290,7 @@ export function GeneratedCrudPage() {
       setSort(initialSort)
       setLoading(false)
       writeStoredSearchFieldKeys(resolvedStorageKey || '', initialSearchFieldKeys)
-      await refreshList(normalized, initialQueryValues, 1, pageSize, initialSort, initialSearchFieldKeys)
+      await refreshList(normalized, initialQueryValues, 1, 10, initialSort, initialSearchFieldKeys)
     }
 
     void bootstrap()
@@ -316,16 +319,6 @@ export function GeneratedCrudPage() {
   function submitSearch() {
     setPageNo(1)
     setQueryValues({ ...draftQueryValues })
-  }
-
-  function refreshWithCurrentQuery() {
-    if (!schema) {
-      return
-    }
-
-    setPageNo(1)
-    setQueryValues({ ...draftQueryValues })
-    void refreshList(schema, draftQueryValues, 1, pageSize, sort)
   }
 
   function clearSearch() {
@@ -576,22 +569,26 @@ export function GeneratedCrudPage() {
 
   if (loading) {
     return (
-      <div className="generated-page-shell">
-        <div className="generated-search-card generated-page-skeleton-search">
+      <PageShell>
+        <div className="generated-search-skeleton">
           <Skeleton.Input active size="small" block style={{ height: 32 }} />
         </div>
-        <div className="page-card generated-table-card">
-          <Skeleton active paragraph={{ rows: 8 }} title={false} />
-        </div>
-      </div>
+        <PanelCard noPadding>
+          <div style={{ padding: '20px' }}>
+            <Skeleton active paragraph={{ rows: 8 }} title={false} />
+          </div>
+        </PanelCard>
+      </PageShell>
     )
   }
 
   if (error || !schema) {
     return (
-      <div className="page-card">
-        <Result status="warning" title="加载运行时配置失败" subTitle={error || '未知错误'} />
-      </div>
+      <PageShell>
+        <PanelCard>
+          <Result status="warning" title="加载运行时配置失败" subTitle={error || '未知错误'} />
+        </PanelCard>
+      </PageShell>
     )
   }
 
@@ -599,7 +596,6 @@ export function GeneratedCrudPage() {
   const searchFields = availableSearchFields.filter((field) => activeSearchFieldKeys.includes(field.fieldKey))
   const listFields = schema.fields.filter((field) => field.listConfig?.visible)
   const collectionName = String(schema.collection.collectionName || '')
-  // 用 PermissionContext 覆盖 schema 中的权限（超管时 contextPerm 全为 true）
   const permissions = {
     ...schema.permissions,
     canList: contextPerm.canList,
@@ -621,8 +617,8 @@ export function GeneratedCrudPage() {
   )
 
   return (
-    <div className="generated-page-shell">
-      <div className="generated-search-card">
+    <PageShell className="generated-crud-page">
+      <div className="generated-search-area">
         <RuntimeSearchForm
           allFields={availableSearchFields}
           fields={searchFields}
@@ -655,7 +651,6 @@ export function GeneratedCrudPage() {
           }}
           onClear={clearSearch}
           onSearch={submitSearch}
-          onRefresh={refreshWithCurrentQuery}
           onValueChange={(fieldKey, value) => {
             setDraftQueryValues((prev) => ({
               ...prev,
@@ -665,7 +660,7 @@ export function GeneratedCrudPage() {
         />
       </div>
 
-      <div className="page-card generated-table-card">
+      <PanelCard noPadding className="generated-table-panel">
         <RuntimeDataTable
           fields={listFields}
           dictMap={schema.dictMap}
@@ -700,7 +695,7 @@ export function GeneratedCrudPage() {
             setSort(nextSort)
           }}
         />
-      </div>
+      </PanelCard>
 
       <RuntimeRecordForm
         visible={formVisible}
@@ -742,6 +737,6 @@ export function GeneratedCrudPage() {
         onClose={() => setDetailVisible(false)}
         onEdit={permissions.canUpdate ? () => void openEditFromDetail() : undefined}
       />
-    </div>
+    </PageShell>
   )
 }

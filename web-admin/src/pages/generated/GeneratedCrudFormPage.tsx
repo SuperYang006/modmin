@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { Button, Card, Result, Row, Skeleton, message } from 'antd'
+import { Button, Result, Row, Skeleton, message } from 'antd'
+import { PageShell, PageHeader, PanelCard, SectionHeader } from '@/components/ui'
 import { RuntimeReadonlySystemField, RuntimeRecordForm, isSystemReservedField } from '@/components/common/RuntimeRecordForm'
 import { createCrudRecord } from '@/runtime/loader/createCrudRecord'
 import { loadCrudDetail } from '@/runtime/loader/loadCrudDetail'
@@ -179,24 +180,26 @@ export function GeneratedCrudFormPage() {
 
   if (loading) {
     return (
-      <div className="generated-form-page">
-        <Card>
+      <PageShell>
+        <PanelCard>
           <Skeleton active paragraph={{ rows: 8 }} title />
-        </Card>
-      </div>
+        </PanelCard>
+      </PageShell>
     )
   }
 
   if (error || !schema) {
     return (
-      <div className="page-card">
-        <Result
-          status="warning"
-          title="加载表单失败"
-          subTitle={error || '未知错误'}
-          extra={<Button onClick={backToList}>返回列表</Button>}
-        />
-      </div>
+      <PageShell>
+        <PanelCard>
+          <Result
+            status="warning"
+            title="加载表单失败"
+            subTitle={error || '未知错误'}
+            extra={<Button onClick={backToList}>返回列表</Button>}
+          />
+        </PanelCard>
+      </PageShell>
     )
   }
 
@@ -212,23 +215,25 @@ export function GeneratedCrudFormPage() {
   const systemFields = activeFields.filter((field) => isSystemReservedField(field.fieldKey))
   const businessFields = activeFields.filter((field) => !isSystemReservedField(field.fieldKey))
   const collectionName = String(schema.collection.collectionName ?? '')
+  const pageTitle = mode === 'create' ? `新增${schema.collection.modelName || '记录'}` : `编辑${schema.collection.modelName || '记录'}`
 
   return (
-    <div className="generated-form-page">
+    <PageShell>
+      <PageHeader
+        title={pageTitle}
+        extra={<Button onClick={backToList}>返回列表</Button>}
+      />
       {systemFields.length > 0 ? (
-        <Card className="generated-form-system-card">
-          <div className="runtime-record-form-system-head">
-            <strong>系统字段</strong>
-            <span>自动维护，只读显示</span>
-          </div>
+        <PanelCard compact>
+          <SectionHeader title="系统字段" description="自动维护，只读显示" />
           <Row gutter={[12, 10]}>
             {systemFields.map((field) => (
               <RuntimeReadonlySystemField key={field.fieldKey} field={field} value={values[field.fieldKey]} />
             ))}
           </Row>
-        </Card>
+        </PanelCard>
       ) : null}
-      <Card className="generated-form-page-card">
+      <PanelCard>
         <RuntimeRecordForm
           visible
           variant="page"
@@ -254,7 +259,7 @@ export function GeneratedCrudFormPage() {
           }}
           onSubmit={() => void submitForm()}
         />
-      </Card>
-    </div>
+      </PanelCard>
+    </PageShell>
   )
 }

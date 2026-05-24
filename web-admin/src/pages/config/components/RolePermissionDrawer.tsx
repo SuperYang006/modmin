@@ -223,7 +223,7 @@ export function RolePermissionDrawer({ roleCode, roleName, open, onClose }: Prop
       title={
         <Space size={8}>
           <span>配置权限</span>
-          <Tag color="blue">{roleName}</Tag>
+          <span className="role-name-tag">{roleName}</span>
         </Space>
       }
       open={open}

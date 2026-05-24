@@ -5,6 +5,7 @@ import { DashboardModelList } from '@/pages/dashboard/components/DashboardModelL
 import { DashboardStats } from '@/pages/dashboard/components/DashboardStats'
 import { DashboardWarnings } from '@/pages/dashboard/components/DashboardWarnings'
 import { useConsoleOverview } from '@/pages/dashboard/hooks/useConsoleOverview'
+import { PageShell } from '@/components/ui'
 
 export function DashboardPage() {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="dashboard-page">
+    <PageShell className="dashboard-page">
       {error ? <Alert type="error" showIcon message={error} /> : null}
 
       <DashboardHeader isSuperAdmin={isSuperAdmin} onNavigate={handleNavigate} />
@@ -43,6 +44,6 @@ export function DashboardPage() {
           </section>
         </>
       ) : null}
-    </div>
+    </PageShell>
   )
 }

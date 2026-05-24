@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Button, Drawer, Form, Input, InputNumber, message, Modal, Select, Space, Table, Tag, Tooltip } from 'antd'
+import { Button, Drawer, Form, Input, InputNumber, message, Modal, Select, Space, Tag, Tooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { PageSectionHeader } from '@/components/layout/PageSectionHeader'
+import { PageShell, PageHeader, PanelCard, ConfigDataTable } from '@/components/ui'
 import { ModelIconPicker } from '@/components/common/ModelIconPicker'
 import { getModelIconComponent, MODEL_ICON_OPTIONS } from '@/components/common/modelIcons'
 import { listMenuGroups } from '@/runtime/loader/listMenuGroups'
@@ -231,24 +231,20 @@ export function MenuGroupManagementPage() {
   }))
 
   return (
-    <div className="config-page">
-      <section className="page-card">
-        <PageSectionHeader
-          description="菜单分组用于将业务目录按域聚合。创建分组后，可在业务目录管理中将目录绑定到对应分组。"
-          actions={
-            <Button type="primary" onClick={handleCreate}>
-              新建分组
-            </Button>
-          }
-        />
-        <Table
+    <PageShell>
+      <PageHeader
+        title="菜单分组"
+        description="菜单分组用于将业务目录按域聚合。创建分组后，可在业务目录管理中将目录绑定到对应分组。"
+        extra={<Button type="primary" onClick={handleCreate}>新建分组</Button>}
+      />
+      <PanelCard noPadding>
+        <ConfigDataTable<MenuGroupItem>
           rowKey="groupId"
           loading={loading}
           columns={columns}
           dataSource={groups}
-          pagination={false}
         />
-      </section>
+      </PanelCard>
 
       <Drawer
         title={editingItem ? '编辑菜单分组' : '新建菜单分组'}
@@ -293,6 +289,6 @@ export function MenuGroupManagementPage() {
           </Form.Item>
         </Form>
       </Drawer>
-    </div>
+    </PageShell>
   )
 }

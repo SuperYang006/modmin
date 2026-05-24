@@ -1,4 +1,4 @@
-import { Button, Card, Col, Drawer, Row, Space, Tag } from 'antd'
+import { Button, Col, Drawer, Row, Space, Tag } from 'antd'
 import type { DictOption, RuntimeField } from '@/types/runtime'
 import { renderDisplayField, renderFormField } from '@/runtime/registry/componentRegistry'
 
@@ -42,6 +42,7 @@ export function RuntimeRecordDetail(props: RuntimeRecordDetailProps) {
   const systemFields = fields.filter((field) => isSystemReservedField(field.fieldKey))
   const businessFields = fields.filter((field) => !isSystemReservedField(field.fieldKey))
   const businessFieldRows = buildFieldRows(businessFields)
+
   return (
     <Drawer
       open={visible}
@@ -56,15 +57,10 @@ export function RuntimeRecordDetail(props: RuntimeRecordDetailProps) {
       destroyOnClose
       placement="right"
       styles={{
-        body: {
-          padding: 20,
-          background: '#f6f8fb',
-        },
+        body: { padding: 20, background: 'var(--bg-layout)' },
       }}
       extra={
-        <Tag color="default" bordered={false} style={{ borderRadius: 999, paddingInline: 10 }}>
-          只读查看
-        </Tag>
+        <span className="runtime-record-detail-readonly-tag">只读查看</span>
       }
       footer={
         <div className="runtime-record-detail-drawer-footer">
@@ -95,57 +91,39 @@ export function RuntimeRecordDetail(props: RuntimeRecordDetailProps) {
           </div>
         ) : null}
 
-        <Card
-          title={
-            <Space size={8}>
-            <span>业务信息</span>
-            <Tag color="processing" bordered={false}>当前记录内容</Tag>
-          </Space>
-          }
-          bordered={false}
-          style={{ borderRadius: 18, boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)' }}
-          bodyStyle={{ padding: 20 }}
-        >
-          <div style={{ display: 'grid', gap: 14 }}>
+        <div className="runtime-record-detail-section">
+          <div className="runtime-record-detail-section-head">
+            <strong>业务信息</strong>
+            <span className="runtime-record-detail-section-tag">当前记录内容</span>
+          </div>
+          <div className="runtime-record-detail-grid-stack">
             {businessFieldRows.map((row, index) => (
               <div
                 key={row.map((field) => field.fieldKey).join('__')}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: row.length === 1 ? 'minmax(0, 1fr)' : 'repeat(2, minmax(0, 1fr))',
-                  gap: 14,
-                  paddingBottom: index < businessFieldRows.length - 1 ? 14 : 0,
-                  borderBottom: index < businessFieldRows.length - 1 ? '1px solid #eef2f7' : 'none',
-                }}
+                className={[
+                  'runtime-record-detail-row',
+                  index < businessFieldRows.length - 1 ? 'runtime-record-detail-row--bordered' : '',
+                  row.length === 1 ? 'runtime-record-detail-row--single' : '',
+                ].filter(Boolean).join(' ')}
               >
                 {row.map((field) => (
-                  <div key={field.fieldKey} style={{ minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-                      <span style={{ color: '#475569', fontWeight: 600 }}>{field.label}</span>
+                  <div key={field.fieldKey} className="runtime-record-detail-item">
+                    <div className="runtime-record-detail-item-head">
+                      <strong>{field.label}</strong>
                       {field.required ? <Tag color="error" bordered={false}>必填</Tag> : null}
                     </div>
-                    <div
-                      style={{
-                        minHeight: 22,
-                        color: '#0f172a',
-                        lineHeight: 1.75,
-                        wordBreak: 'break-word',
-                        overflowWrap: 'anywhere',
-                      }}
-                    >
+                    <div className="runtime-record-detail-item-value">
                       {renderDetailFieldValue(field, record[field.fieldKey], dictMap, collectionName)}
                     </div>
                     {field.description ? (
-                      <div style={{ marginTop: 6, color: '#94a3b8', fontSize: 12, lineHeight: 1.6 }}>
-                        {field.description}
-                      </div>
+                      <div className="runtime-record-detail-item-desc">{field.description}</div>
                     ) : null}
                   </div>
                 ))}
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </Space>
     </Drawer>
   )
@@ -202,66 +180,24 @@ function renderDetailFieldValue(
   }
 
   if (value === null || value === undefined || value === '') {
-    return <span style={{ color: '#94a3b8' }}>-</span>
+    return <span className="runtime-record-detail-empty">-</span>
   }
 
   if (field.type === 'json') {
     const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2)
-
-    return (
-      <pre
-        style={{
-          margin: 0,
-          padding: '12px 14px',
-          borderRadius: 12,
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          color: '#0f172a',
-          fontSize: 13,
-          lineHeight: 1.65,
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          overflowWrap: 'anywhere',
-          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-        }}
-      >
-        {text}
-      </pre>
-    )
+    return <pre className="runtime-record-detail-json">{text}</pre>
   }
 
   if (field.type === 'richtext') {
-    return renderDisplayField({
-      field,
-      value,
-      dictMap,
-      mode: 'detail',
-    })
+    return renderDisplayField({ field, value, dictMap, mode: 'detail' })
   }
 
   if (field.type === 'textarea' || field.type === 'markdown') {
     const text = typeof value === 'string' ? value : String(value)
-
-    return (
-      <div
-        style={{
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          overflowWrap: 'anywhere',
-          lineHeight: 1.75,
-        }}
-      >
-        {text}
-      </div>
-    )
+    return <div className="runtime-record-detail-pre">{text}</div>
   }
 
-  return renderDisplayField({
-    field,
-    value,
-    dictMap,
-    mode: 'detail',
-  })
+  return renderDisplayField({ field, value, dictMap, mode: 'detail' })
 }
 
 function renderReadonlySystemField(
@@ -274,14 +210,10 @@ function renderReadonlySystemField(
       <div className="runtime-record-form-system-cell">
         <div className="runtime-record-form-system-label-row">
           <span className="runtime-record-form-system-label">{field.label}</span>
-          <Tag color="blue">只读</Tag>
+          <span className="runtime-record-form-system-readonly-tag">只读</span>
         </div>
         <div className="runtime-record-form-system-value">
-          {renderDisplayField({
-            field,
-            value,
-            dictMap,
-          })}
+          {renderDisplayField({ field, value, dictMap })}
         </div>
       </div>
     </Col>

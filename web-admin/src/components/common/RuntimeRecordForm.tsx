@@ -235,7 +235,7 @@ export function RuntimeReadonlySystemField(props: { field: RuntimeField; value: 
       <div className="runtime-record-form-system-cell">
         <div className="runtime-record-form-system-label-row">
           <span className="runtime-record-form-system-label">{field.label}</span>
-          <Tag color="blue">只读</Tag>
+          <span className="runtime-record-form-system-readonly-tag">只读</span>
         </div>
         <div className="runtime-record-form-system-value" title={formatReadonlyValue(field, value)}>
           {formatReadonlyValue(field, value)}

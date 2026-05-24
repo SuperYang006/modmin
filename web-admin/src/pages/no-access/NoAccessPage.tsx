@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Result, Space, Tag, Typography } from 'antd'
+import { Button, Result, Space, Typography } from 'antd'
 import { LockOutlined, LogoutOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { getStoredAuthSession } from '@/auth/session'
@@ -66,7 +66,7 @@ export function NoAccessPage() {
             </li>
             <li>
               <Text type="secondary">角色</Text>
-              <Tag color={userInfo?.roleCode ? 'blue' : 'default'}>{roleLabel}</Tag>
+              <span className={userInfo?.roleCode ? 'no-access-role-tag' : undefined}>{roleLabel}</span>
             </li>
           </ul>
           <Paragraph type="secondary" className="no-access-detail-tip">

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Avatar, Button, Drawer, Form, Input, message, Modal, Select, Space, Table, Tag, Upload } from 'antd'
+import { Avatar, Button, Drawer, Form, Input, message, Modal, Select, Space, Tag, Upload } from 'antd'
 import { PlusOutlined, UserOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
-import { PageSectionHeader } from '@/components/layout/PageSectionHeader'
+import { PageShell, PageHeader, PanelCard, ConfigDataTable } from '@/components/ui'
 import { listAdminUsers, saveAdminUser, deleteAdminUser, disableAdminUser } from '@/runtime/loader/adminUsers'
 import type { AdminUserItem } from '@/runtime/loader/adminUsers'
 import { listRoles } from '@/runtime/loader/roles'
@@ -264,20 +264,20 @@ export function AdminUserManagementPage() {
   ]
 
   return (
-    <div className="config-page">
-      <section className="page-card">
-        <PageSectionHeader
-          description="管理后台管理员账号，设置登录凭证与角色。"
-          actions={<Button type="primary" onClick={handleCreate}>新建用户</Button>}
-        />
-        <Table
+    <PageShell>
+      <PageHeader
+        title="后台用户"
+        description="管理后台管理员账号，设置登录凭证与角色。"
+        extra={<Button type="primary" onClick={handleCreate}>新建用户</Button>}
+      />
+      <PanelCard noPadding>
+        <ConfigDataTable<AdminUserItem>
           rowKey="userId"
           loading={loading}
           columns={columns}
           dataSource={users}
-          pagination={false}
         />
-      </section>
+      </PanelCard>
 
       <Drawer
         title={editingItem ? '编辑用户' : '新建用户'}
@@ -324,6 +324,6 @@ export function AdminUserManagementPage() {
           </Form.Item>
         </Form>
       </Drawer>
-    </div>
+    </PageShell>
   )
 }

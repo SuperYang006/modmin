@@ -35,6 +35,7 @@ export interface VditorConfig {
   value?: string
   placeholder?: string
   disabled?: boolean
+  isDark?: boolean
   uploadHandler?: (files: File[]) => Promise<string | null>
   input?: (value: string) => void
   focus?: (value: string) => void
@@ -51,7 +52,7 @@ export function createVditorOptions(cfg: VditorConfig): VditorOptions {
     mode: 'ir',
     value: cfg.value || '',
     lang: 'zh_CN',
-    theme: 'classic',
+    theme: cfg.isDark ? 'dark' : 'classic',
     icon: 'ant',
     height: 'calc(100vh - 176px)',
     minHeight: 420,

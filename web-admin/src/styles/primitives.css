@@ -1,0 +1,258 @@
+/* styles/primitives.css — UI primitive 公共样式 */
+
+/* ---------- PageShell ---------- */
+.modmin-page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--bg-layout);
+  min-height: 100%;
+}
+
+/* ---------- PageHeader ---------- */
+.modmin-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0 8px;
+}
+
+.modmin-page-header__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.modmin-page-header__title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-tight);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.modmin-page-header__description {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height: var(--line-normal);
+}
+
+.modmin-page-header__extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ---------- PanelCard ---------- */
+.modmin-panel-card {
+  background: var(--bg-container);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.modmin-panel-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modmin-panel-card__title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.modmin-panel-card__extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modmin-panel-card__body {
+  padding: 20px;
+}
+
+.modmin-panel-card--compact .modmin-panel-card__header {
+  padding: 10px 16px;
+}
+
+.modmin-panel-card--compact .modmin-panel-card__body {
+  padding: 12px 16px;
+}
+
+.modmin-panel-card--no-padding .modmin-panel-card__body {
+  padding: 0;
+}
+
+/* ---------- SectionHeader ---------- */
+.modmin-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modmin-section-header__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.modmin-section-header__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: var(--line-tight);
+}
+
+.modmin-section-header__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.modmin-section-header__extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ---------- ToolbarRow ---------- */
+.modmin-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.modmin-toolbar-row__left,
+.modmin-toolbar-row__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---------- DrawerFooterBar ---------- */
+.modmin-drawer-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-container);
+}
+
+.modmin-drawer-footer-bar__secondary,
+.modmin-drawer-footer-bar__primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- EmptyState ---------- */
+.modmin-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 24px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.modmin-empty-state__icon {
+  font-size: 32px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 4px;
+}
+
+.modmin-empty-state__title {
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.modmin-empty-state__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  max-width: 360px;
+}
+
+.modmin-empty-state__action {
+  margin-top: 8px;
+}
+
+.modmin-empty-state--compact {
+  padding: 24px 16px;
+  gap: 4px;
+}
+
+.modmin-empty-state--compact .modmin-empty-state__icon {
+  font-size: 20px;
+}
+
+/* ---------- StatusBadge ---------- */
+.modmin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-normal);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.modmin-status-badge--neutral {
+  background: var(--bg-muted);
+  color: var(--color-text-secondary);
+  border-color: var(--border-light);
+}
+
+.modmin-status-badge--info {
+  background: var(--color-primary-bg);
+  color: var(--color-info);
+  border-color: var(--color-primary-border);
+}
+
+.modmin-status-badge--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.modmin-status-badge--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.modmin-status-badge--error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.modmin-status-badge--processing {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-color: var(--color-primary-border);
+}

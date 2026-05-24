@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   Alert,
   Button,
-  Card,
   Col,
   Empty,
   Input,
@@ -16,6 +15,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd'
+import { PageShell, PageHeader, PanelCard } from '@/components/ui'
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
@@ -643,21 +643,20 @@ export function ModelEditPage() {
 
   if (loading) {
     return (
-      <div className="model-editor-page">
-        <Card className="model-editor-card model-editor-meta-card" title="编辑数据模型">
+      <PageShell>
+        <PanelCard title="编辑数据模型">
           <Skeleton active paragraph={{ rows: 3 }} />
-        </Card>
-        <Card className="model-editor-card model-editor-card-fill" title="字段设计">
+        </PanelCard>
+        <PanelCard title="字段设计" className="model-editor-fields-card">
           <Skeleton active paragraph={{ rows: 8 }} />
-        </Card>
-      </div>
+        </PanelCard>
+      </PageShell>
     )
   }
 
   return (
-    <div className="model-editor-page">
-      <Card
-        className="model-editor-card model-editor-meta-card"
+    <PageShell>
+      <PageHeader
         title="编辑数据模型"
         extra={
           <Space>
@@ -667,8 +666,9 @@ export function ModelEditPage() {
             </Button>
           </Space>
         }
-      >
-        {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
+      />
+      <PanelCard compact>
+        {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} /> : null}
 
         <div className="model-editor-meta-grid">
           <span className="model-editor-meta-field">
@@ -699,9 +699,9 @@ export function ModelEditPage() {
           </span>
         </div>
 
-      </Card>
+      </PanelCard>
 
-      <Card className="model-editor-card model-editor-card-fill" title="字段设计">
+      <PanelCard title="字段设计" className="model-editor-fields-card">
         <Row gutter={24} align="top">
           <Col xs={24} xl={15}>
             <div className="model-field-workspace">
@@ -766,8 +766,8 @@ export function ModelEditPage() {
                               {isFieldSearchable(field.type) ? (
                                 <Tooltip title="启用后，该字段将出现在列表页的搜索栏中">
                                   <Tag
-                                    color={searchFieldKeys.includes(field.key) ? 'blue' : 'default'}
-                                    className="model-field-search-tag"
+                                    color={searchFieldKeys.includes(field.key) ? undefined : 'default'}
+                                    className={searchFieldKeys.includes(field.key) ? 'model-field-search-tag model-field-search-tag--active' : 'model-field-search-tag'}
                                     onClick={() => toggleSearchField(field.key, !searchFieldKeys.includes(field.key))}
                                   >
                                     {searchFieldKeys.includes(field.key) ? '已加入搜索' : '加入搜索'}
@@ -844,7 +844,7 @@ export function ModelEditPage() {
             </div>
           </Col>
         </Row>
-      </Card>
+      </PanelCard>
 
       <FieldConfigModal
         open={fieldModalVisible}
@@ -863,6 +863,6 @@ export function ModelEditPage() {
         onSave={handleSaveFieldConfig}
         onChange={(updater) => setFieldModalState((prev) => updater(prev))}
       />
-    </div>
+    </PageShell>
   )
 }

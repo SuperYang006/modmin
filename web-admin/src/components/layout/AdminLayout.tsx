@@ -5,6 +5,7 @@ import { HomeOutlined, LogoutOutlined, RightOutlined, UserOutlined } from '@ant-
 import { getStoredAuthSession } from '@/auth/session'
 import { resolveBreadcrumbs } from '@/app/navigation'
 import { BrandLogo } from '@/components/common/BrandLogo'
+import { AppearanceSettings } from '@/components/common/AppearanceSettings'
 import { PageTabs } from '@/components/layout/PageTabs'
 import { SidebarNavigation } from '@/components/layout/SidebarNavigation'
 import { logoutAdminUser } from '@/runtime/loader/auth'
@@ -95,6 +96,7 @@ export function AdminLayout() {
         <Layout.Header className="app-topbar">
           <div className="app-topbar-tools" />
           <div className="app-topbar-account">
+            <AppearanceSettings />
             <Dropdown
               placement="bottomRight"
               overlayClassName="app-user-dropdown"

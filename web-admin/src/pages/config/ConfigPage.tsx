@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   Alert,
   Button,
-  Card,
   Empty,
   Input,
   Popconfirm,
@@ -17,6 +16,7 @@ import { getModelEditPath } from '@/app/navigation'
 import { deleteCollectionSchema } from '@/runtime/loader/deleteCollectionSchema'
 import { listCollectionSchemas } from '@/runtime/loader/listCollectionSchemas'
 import { sortCollectionSchemas } from '@/runtime/loader/sortCollectionSchemas'
+import { PageShell, PageHeader, PanelCard } from '@/components/ui'
 import type { CollectionSchemaSummary } from '@/types/schema'
 
 export function ConfigPage() {
@@ -226,11 +226,20 @@ export function ConfigPage() {
   ]
 
   return (
-    <div className="config-page config-model-page">
-      <Card title="模型列表">
-        {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
+    <PageShell>
+      <PageHeader
+        title="模型列表"
+        description="管理业务数据模型，支持拖拽排序。"
+        extra={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/config/models/create')}>
+            创建模型
+          </Button>
+        }
+      />
+      <PanelCard noPadding className="config-model-page">
+        {error ? <Alert type="error" showIcon message={error} style={{ margin: '16px 16px 0' }} /> : null}
 
-        <div className="config-model-table-toolbar">
+        <div className="config-model-table-toolbar" style={{ padding: '16px 16px 0' }}>
           <div className="config-model-table-toolbar-main">
             <Input.Search
               allowClear
@@ -240,11 +249,6 @@ export function ConfigPage() {
               style={{ width: 320 }}
             />
           </div>
-          <Space size={12}>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/config/models/create')}>
-              创建模型
-            </Button>
-          </Space>
         </div>
 
         {filteredCollections.length > 0 || loading ? (
@@ -323,7 +327,7 @@ export function ConfigPage() {
         ) : (
           <Empty description="当前还没有模型，请先创建第一个模型。" />
           )}
-      </Card>
-    </div>
+      </PanelCard>
+    </PageShell>
   )
 }

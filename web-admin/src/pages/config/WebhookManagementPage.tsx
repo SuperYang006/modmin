@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Alert, Button, Drawer, Form, Input, InputNumber, Modal, Select, Space, Table, Tag, message } from 'antd'
+import { Alert, Button, Drawer, Form, Input, InputNumber, Modal, Select, Space, Tag, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { PageSectionHeader } from '@/components/layout/PageSectionHeader'
+import { PageShell, PageHeader, PanelCard, ConfigDataTable } from '@/components/ui'
 import { listCollectionSchemas } from '@/runtime/loader/listCollectionSchemas'
 import { deleteWebhook, listWebhooks, saveWebhook, testWebhook } from '@/runtime/loader/webhooks'
 import type { SaveWebhookPayload, WebhookItem } from '@/types/schema'
@@ -274,12 +274,13 @@ export function WebhookManagementPage() {
   ]
 
   return (
-    <div className="config-page">
-      <section className="page-card">
-        <PageSectionHeader
-          description="配置业务数据变更后的 HTTPS 或云函数回调。"
-          actions={<Button type="primary" onClick={handleCreate}>新建 Webhook</Button>}
-        />
+    <PageShell>
+      <PageHeader
+        title="Webhook 配置"
+        description="配置业务数据变更后的 HTTPS 或云函数回调。"
+        extra={<Button type="primary" onClick={handleCreate}>新建 Webhook</Button>}
+      />
+      <PanelCard>
         {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
         <Form form={form} layout="vertical" className="audit-log-filter-form" onFinish={(values) => handleSearch(values)}>
           <div className="audit-log-filter-grid">
@@ -310,21 +311,21 @@ export function WebhookManagementPage() {
             </Space>
           </div>
         </Form>
-        <div className="audit-log-table-wrap">
-          <Table
-            rowKey="webhookId"
-            loading={loading}
-            columns={columns}
-            dataSource={filteredWebhooks}
-            scroll={{ x: 1200, y: 520 }}
-            pagination={{
-              showSizeChanger: true,
-              pageSizeOptions: ['10', '20', '50', '100'],
-              showTotal: (total) => `共 ${total} 条`,
-            }}
-          />
-        </div>
-      </section>
+      </PanelCard>
+      <PanelCard noPadding>
+        <ConfigDataTable<WebhookItem>
+          rowKey="webhookId"
+          loading={loading}
+          columns={columns}
+          dataSource={filteredWebhooks}
+          scroll={{ x: 1200, y: 520 }}
+          pagination={{
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showTotal: (total) => `共 ${total} 条`,
+          }}
+        />
+      </PanelCard>
 
       <Drawer
         title={editingItem ? '编辑 Webhook' : '新建 Webhook'}
@@ -406,6 +407,6 @@ export function WebhookManagementPage() {
           </Form.Item>
         </Form>
       </Drawer>
-    </div>
+    </PageShell>
   )
 }
