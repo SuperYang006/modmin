@@ -189,6 +189,7 @@
   border: 0;
   border-radius: 12px;
   background: var(--bg-container);
+  box-shadow: var(--shadow-sm);
   transition: padding 0.2s ease;
 }
 
