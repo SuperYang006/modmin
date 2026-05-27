@@ -86,11 +86,11 @@ tests/              测试
 
 <img src="doc/images/deploy/获取私钥文件.png" alt="login" width="480" />
 
-3. 开放modmin_auth云函数公网访问。
+4. 开放modmin_auth云函数公网访问。
 
 <img src="doc/images/deploy/开启modmin_auth路由.png" alt="login" width="480" />
 
-3. 配置安全域名列表，添加两个**localhost:5173**、**localhost:3100**
+5. 配置安全域名列表，添加两个**localhost:5173**、**localhost:3100**
 
 <img src="doc/images/deploy/开放3000端口.png" alt="login" width="480" />
 
