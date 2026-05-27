@@ -28,7 +28,22 @@ function renderBootstrapAlert(
   }
 
   if (stage === 'ready') {
-    return <Alert type="success" showIcon message="本地开发环境已完成初始化" description={`检测到可登录管理员账号：${adminUserName || 'admin'}。如果密码不确定，可去“本地部署工具”重新覆盖管理员密码。`} />
+    return (
+      <Alert
+        type="success"
+        showIcon
+        message="本地开发环境已完成初始化"
+        description={(
+          <Space direction="vertical" size={10}>
+            <span>检测到可登录管理员账号：{adminUserName || 'admin'}。</span>
+            <span>如果忘记密码，可以通过本地部署工具重新设置管理员密码。</span>
+            <Button size="small" onClick={() => navigate('/dev/deploy', { state: { from: '/login' } })}>
+              去重置管理员密码
+            </Button>
+          </Space>
+        )}
+      />
+    )
   }
 
   if (stage === 'missing_admin') {

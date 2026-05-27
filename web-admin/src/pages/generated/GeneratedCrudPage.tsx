@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { message, Modal, Result, Skeleton } from 'antd'
 import { PageShell, PanelCard } from '@/components/ui'
@@ -23,6 +23,7 @@ import { flushRichTextEditors, hasUploadingRichTextImages } from '@/runtime/rich
 import { updateCrudRecord } from '@/runtime/loader/updateCrudRecord'
 import { preloadAssetUrls } from '@/services/asset'
 import { useModelPermission } from '@/context/PermissionContext'
+import { useColumnPreferences } from '@/hooks/useColumnPreferences'
 import type {
   CrudFilterItem,
   CrudListQuery,
@@ -42,6 +43,17 @@ export function GeneratedCrudPage() {
   const [schema, setSchema] = useState<PageRuntimeSchema | null>(null)
   const schemaCollectionName = String(schema?.collection?.collectionName ?? '')
   const contextPerm = useModelPermission(schemaCollectionName)
+  const allListFields = useMemo(
+    () => schema?.fields.filter((field) => field.listConfig?.visible !== false && !field.hidden) ?? [],
+    [schema],
+  )
+  const {
+    visibleFields: listFields,
+    columnState,
+    toggleColumn,
+    reorderColumns,
+    reset: resetColumns,
+  } = useColumnPreferences(schemaCollectionName, allListFields)
   const [listResult, setListResult] = useState<CrudListResult | null>(null)
   const [formVisible, setFormVisible] = useState(false)
   const [detailVisible, setDetailVisible] = useState(false)
@@ -594,7 +606,6 @@ export function GeneratedCrudPage() {
 
   const availableSearchFields = schema.fields.filter((field) => field.searchConfig?.visible)
   const searchFields = availableSearchFields.filter((field) => activeSearchFieldKeys.includes(field.fieldKey))
-  const listFields = schema.fields.filter((field) => field.listConfig?.visible)
   const collectionName = String(schema.collection.collectionName || '')
   const permissions = {
     ...schema.permissions,
@@ -694,6 +705,11 @@ export function GeneratedCrudPage() {
             setPageNo(1)
             setSort(nextSort)
           }}
+          allListFields={allListFields}
+          columnState={columnState}
+          onToggleColumn={toggleColumn}
+          onReorderColumns={reorderColumns}
+          onResetColumns={resetColumns}
         />
       </PanelCard>
 

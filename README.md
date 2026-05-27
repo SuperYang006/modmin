@@ -9,15 +9,15 @@ Modmin（中文读法接近摩德敏,自造词来自于model + Admin）是一个
 
 部分功能页面截图
 
-<img src="/doc/images/readme/login.png" alt="login" width="480" />
+<img src="doc/images/readme/login.png" alt="login" width="480" />
 
-<img src="/doc/images/readme/modelcreate.png" alt="modelcreate" width="480" />
+<img src="doc/images/readme/modelcreate.png" alt="modelcreate" width="480" />
 
-<img src="/doc/images/readme/webhook.png" alt="webhook" width="480" />
+<img src="doc/images/readme/webhook.png" alt="webhook" width="480" />
 
-<img src="/doc/images/readme/role.png" alt="role" width="480" />
+<img src="doc/images/readme/role.png" alt="role" width="480" />
 
-<img src="/doc/images/readme/log.png" alt="log" width="480" />
+<img src="doc/images/readme/log.png" alt="log" width="480" />
 
 ## 核心能力
 
@@ -61,123 +61,168 @@ scripts/            部署与辅助脚本
 tests/              测试
 ```
 
-## 文档入口
+## 文档
 
-1. [部署指南](doc/部署指南.md)
-2. [运行模式说明](doc/运行模式说明.md)
+1. [部署指南](doc/部署指南.md) — 完整部署文档（含命令行部署、附录等）
+2. [运行模式说明](doc/运行模式说明.md) — mock / http / tcb 三种运行模式详解
 
-如果你是第一次接触这个项目，建议先读部署指南，再看运行模式说明。
+## 一键部署（推荐）
 
-## 快速开始
+通过后台「开发部署」页面完成全流程部署，**无需手动执行命令行**。系统会自动完成集合创建、云函数部署、前端构建上传、初始超管创建。
 
-### 1. 安装依赖
+### 前提条件
 
-在仓库根目录执行：
+1. 一个 CloudBase 环境（微信云开发），已开通数据库、云函数、静态托管
+
+2. 腾讯云 API 密钥（[SecretId / SecretKey](https://console.cloud.tencent.com/cam/capi)）
+
+   <img src="doc/images/deploy/获取API密钥1.png" alt="login" width="480" />
+
+   <img src="doc/images/deploy/获取API密钥2.png" alt="login" width="480" />
+
+   <img src="doc/images/deploy/获取API密钥3.png" alt="login" width="480" />
+
+3. 从 CloudBase 控制台下载自定义登录私钥文件 `tcb_custom_login.json。放到**cloudfunctions/modmin_auth/tcb_custom_login.json**下
+
+<img src="doc/images/deploy/获取私钥文件.png" alt="login" width="480" />
+
+3. 开放modmin_auth云函数公网访问。
+
+<img src="doc/images/deploy/开启modmin_auth路由.png" alt="login" width="480" />
+
+3. 配置安全域名列表，添加两个**localhost:5173**、**localhost:3000**，截图只有一个，懒得更新了。
+
+<img src="doc/images/deploy/开放3000端口.png" alt="login" width="480" />
+
+### 启动本地环境
 
 ```bash
+# 1. 安装依赖
 npm install
-```
-
-前端和本地调试服务各自也有独立依赖：
-
-```bash
 npm --prefix web-admin install
 npm --prefix local-server install
+
+# 2. 配置本地凭据
+#    复制 local-server/cloudbase.local.example.json 为 local-server/cloudbase.local.json
+#    填入 envId、secretId、secretKey、jwtSecret（openssl rand -hex 32 生成）
+
+# 3. 启动本地云函数服务
+cd local-server && npm run dev
+
+# 4. 启动前端（另开终端）
+cd web-admin && npm run dev
 ```
 
-### 2. 先完成部署前准备
+### 一键部署操作
 
-在真正运行前，至少需要准备：
+根据引进入一键部署页面后：
 
-1. 一个CloudBase环境（微信云开发）
-2. 自定义登陆的密钥文件（tcb_custom_login.json）
-3. 云开发环境的secretId、secretKey
+1. 填写部署参数：
 
-完整步骤见：
+| 参数 | 说明 |
+| --- | --- |
+| **环境 ID** | CloudBase 环境 ID |
+| **地域** | 环境所在地域（如 `ap-shanghai`） |
+| **API 密钥** | 腾讯云 SecretId / SecretKey |
+| **JWT 密钥** | 可自动生成或手动输入（至少 32 字符） |
+| **自定义登录私钥** | `tcb_custom_login.json` 文件，如果没有显示读取到，把文件放到**cloudfunctions/modmin_auth/tcb_custom_login.json** |
+| **auth接口路由** | 开放modmin_auth云函数的公网访问 |
+| **部署目录** | 前端部署路径（根目录填 `/`，子目录如 `/modmin/`） |
 
-[`doc/部署指南.md`](doc/部署指南.md)
+2. 点击「开始部署」，右侧日志面板会实时显示进度
 
-### 3. 选择运行模式
+### 部署内容
 
-当前项目支持三种模式：
+一键部署会自动完成以下全部步骤：
 
-1. `mock`
-2. `http`
-3. `tcb`
+- ✅ 创建 9 个系统集合（`modmin_collections`、`modmin_admin_users` 等）
+- ✅ 部署 7 个云函数 + 注入环境变量（含 `MODMIN_JWT_SECRET`）
+- ✅ 构建前端并上传到 CloudBase 静态托管
+- ✅ 创建初始超级管理员账号
+- ✅ 补齐内置角色（`role_super_admin`、`role_operator`）
 
-推荐顺序：
+### 部署完成后
 
-1. `http`：日常本地开发
-2. `tcb`：真实云端联调
-3. `mock`：轻量演示
+1. 用日志中输出的管理员账号密码登录
+2. **立即修改初始密码**
+3. 进入「角色管理」确认内置角色已存在
+4. 进入「模型管理」点击「新建模型」，能正常保存即表示部署成功
 
-更详细说明见：
+> ⚠️ 一键部署会直接操作生产环境，请确认 API 密钥指向正确的环境。
+>
+> 需要命令行部署或更多细节，请参考 [部署指南](doc/部署指南.md)。
 
-[`doc/运行模式说明.md`](doc/运行模式说明.md)
+## 命令行部署
+
+适合需要精细控制部署流程、或在 CI/CD 环境中使用的场景。
+
+```bash
+# 部署全部云函数
+export MODMIN_JWT_SECRET=$(openssl rand -hex 32)
+npm run deploy:fn
+
+# 构建并部署前端
+npm run deploy:web
+
+# 或一次搞定
+npm run deploy:all
+```
+
+完整步骤（含环境准备、集合创建、HTTP 触发器配置、初始超管创建等）请参考 [部署指南 - 命令行部署](doc/部署指南.md)。
 
 ## 本地开发
 
-### 方式一：Mock 模式
-
-适合轻量 UI 演示，不适合作为主开发模式，因为很多核心功能需要依赖云函数功能，mock很难覆盖。
-
-```bash
-cd web-admin
-npm run dev
-```
-
-### 方式二：本地云函数服务（http模式）
+### 方式一：本地云函数服务（http 模式，推荐）
 
 这是当前推荐的日常开发方式。
 
-先启动本地云函数服务：
-
 ```bash
-cd local-server
-npm run dev
+# 终端 1：启动本地云函数服务
+cd local-server && npm run dev
+
+# 终端 2：启动前端
+cd web-admin && npm run dev
 ```
 
-再启动前端：
+前端默认请求本地 `http://localhost:3100`。
+
+### 方式二：Mock 模式
+
+适合轻量 UI 演示，很多核心功能无法覆盖。
 
 ```bash
-cd web-admin
-npm run dev
+cd web-admin && npm run dev
 ```
 
-默认情况下，前端开发模式会读取 `web-admin/.env.development`，并请求本地 `http://localhost:3100`。
+### 方式三：连接云端环境（tcb 模式）
 
-### 方式三：连接云端环境（tcb模式）
-
-完成部署后，复制并填写：
+完成部署后，复制并填写生产配置：
 
 ```bash
 cp web-admin/.env.production.example web-admin/.env.production.local
+cd web-admin && npm run dev
 ```
 
-然后在启动前端：
-
-```bash
-cd web-admin
-npm run dev
-```
+> 运行模式详细说明见 [运行模式说明](doc/运行模式说明.md)。
 
 ## 常用命令
 
 仓库根目录常用命令如下：
 
 ```bash
+# 测试
 npm test
 npm run test:watch
-npm run setup
-npm run tcb:login
-npm run deploy:fn
-npm run deploy:fn:single -- modmin_auth
-npm run build:web
-npm run deploy:web
-npm run deploy:all
-```
 
-说明：部署到正式环境的话，强烈建议使用命令`npm run setup`，运行命令后会启动modmin一键部署向导。
+# 部署
+npm run tcb:login                          # 登录 CloudBase
+export MODMIN_JWT_SECRET=$(openssl rand -hex 32)
+npm run deploy:fn                          # 部署全部云函数
+npm run deploy:fn:single -- modmin_auth    # 部署单个云函数
+npm run build:web                          # 构建前端
+npm run deploy:web                         # 部署前端到静态托管
+npm run deploy:all                         # 云函数 + 前端一起部署
+```
 
 ## 环境文件约定
 
@@ -225,4 +270,4 @@ npm run test:watch
 
 作者微信：
 
-<img src="/doc/images/readme/wx.jpg" alt="wechat" width="480" />
+<img src="doc/images/readme/wx.jpg" alt="wechat" width="480" />

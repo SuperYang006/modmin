@@ -1301,6 +1301,115 @@
   word-break: break-word;
 }
 
+/* ---------- 列设置 Popover ---------- */
+.runtime-col-settings-popover {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.runtime-col-settings-popover .ant-popover-inner {
+  padding: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+.runtime-col-settings-panel {
+  width: 220px;
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+.runtime-col-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.runtime-col-settings-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.runtime-col-settings-reset {
+  padding: 0 4px !important;
+  height: auto !important;
+  font-size: 12px !important;
+  color: var(--color-text-tertiary) !important;
+}
+
+.runtime-col-settings-reset:hover {
+  color: var(--color-primary) !important;
+}
+
+.runtime-col-settings-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+
+.runtime-col-settings-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.runtime-col-settings-list::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 2px;
+}
+
+.runtime-col-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: default;
+  transition: background 0.15s ease;
+}
+
+.runtime-col-settings-item:hover {
+  background: var(--bg-hover);
+}
+
+.runtime-col-settings-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-disabled);
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
+  transition: color 0.15s ease;
+}
+
+.runtime-col-settings-drag-handle:hover {
+  color: var(--color-text-secondary);
+}
+
+.runtime-col-settings-drag-handle:active {
+  cursor: grabbing;
+}
+
+.runtime-col-settings-checkbox {
+  flex: 1;
+  min-width: 0;
+}
+
+.runtime-col-settings-checkbox .ant-checkbox + span {
+  font-size: 13px;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---------- 生成页兼容类（部分组件仍在用） ---------- */
 .generated-section {
   margin-top: 0;

@@ -1,9 +1,12 @@
 import { Button, Empty, Pagination, Space, Table } from 'antd'
+import { SettingOutlined } from '@ant-design/icons'
 import { useEffect, useRef, useState } from 'react'
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table'
 import type { SortOrder } from 'antd/es/table/interface'
 import type { CrudListQuery, CrudListResult, DictOption, RuntimeAction, RuntimeField } from '@/types/runtime'
 import { renderDisplayField } from '@/runtime/registry/componentRegistry'
+import { ColumnSettingsPopover } from './ColumnSettingsPopover'
+import type { ColumnPref } from '@/hooks/useColumnPreferences'
 
 interface RuntimeDataTableProps {
   fields: RuntimeField[]
@@ -26,6 +29,16 @@ interface RuntimeDataTableProps {
   onToolbarActionClick?: (actionKey: string) => void
   onRefresh: () => void
   onSortChange: (sort?: CrudListQuery['sort']) => void
+  /** 列设置：全部可列表展示的字段（含隐藏的） */
+  allListFields?: RuntimeField[]
+  /** 列设置：当前列配置状态 */
+  columnState?: ColumnPref[]
+  /** 列设置：切换某列的显隐 */
+  onToggleColumn?: (key: string) => void
+  /** 列设置：拖拽排序回调 */
+  onReorderColumns?: (from: number, to: number) => void
+  /** 列设置：重置为默认 */
+  onResetColumns?: () => void
 }
 
 export function RuntimeDataTable(props: RuntimeDataTableProps) {
@@ -49,6 +62,11 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
     onToolbarActionClick,
     onRefresh,
     onSortChange,
+    allListFields,
+    columnState,
+    onToggleColumn,
+    onReorderColumns,
+    onResetColumns,
   } = props
   const total = result?.pagination.total ?? 0
   const activeSortField = sort?.field || ''
@@ -74,8 +92,22 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
     return () => ro.disconnect()
   }, [])
 
+  // 根据 columnState 排序 fields（如果有提供）
+  const sortedFields = (() => {
+    if (!columnState || columnState.length === 0) {
+      return fields
+    }
+    // 按 columnState 的 order 排序
+    const orderMap = new Map(columnState.map((c) => [c.key, c.order]))
+    return [...fields].sort((a, b) => {
+      const orderA = orderMap.get(a.fieldKey) ?? 999
+      const orderB = orderMap.get(b.fieldKey) ?? 999
+      return orderA - orderB
+    })
+  })()
+
   const columns: ColumnsType<Record<string, unknown>> = [
-    ...fields.map((field) => ({
+    ...sortedFields.map((field) => ({
       title: field.label,
       dataIndex: field.fieldKey,
       key: field.fieldKey,
@@ -152,10 +184,29 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
     },
   ]
 
+  const columnSettingsButton = (
+    <Button type="text" size="small" icon={<SettingOutlined />}>
+      列设置
+    </Button>
+  )
+
   return (
     <section className="generated-section runtime-data-table-section">
       <div className="runtime-data-table-toolbar">
         <Space size={8} wrap>
+          {allListFields && columnState && onToggleColumn && onReorderColumns && onResetColumns ? (
+            <ColumnSettingsPopover
+              allListFields={allListFields}
+              columnState={columnState}
+              onToggleColumn={onToggleColumn}
+              onReorderColumns={onReorderColumns}
+              onReset={onResetColumns}
+            >
+              {columnSettingsButton}
+            </ColumnSettingsPopover>
+          ) : (
+            columnSettingsButton
+          )}
           {toolbarActions.map((action) => (
             <Button key={action.actionKey} type="primary" size="small" onClick={() => onToolbarActionClick?.(action.actionKey)}>
               {action.label}
@@ -166,7 +217,6 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
           <Button size="small" onClick={onRefresh} disabled={loading}>
             刷新列表
           </Button>
-          <Button type="text" size="small">列设置</Button>
         </Space>
       </div>
       <div ref={shellRef} className="runtime-data-table-shell">
@@ -179,7 +229,7 @@ export function RuntimeDataTable(props: RuntimeDataTableProps) {
             columnWidth: 44,
           }}
           tableLayout="fixed"
-          scroll={{ x: Math.max(fields.length * 180, 1080), y: tableScrollY }}
+          scroll={{ x: Math.max(sortedFields.length * 180, 1080), y: tableScrollY }}
           locale={{
             emptyText: <Empty description="当前没有数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />,
           }}
