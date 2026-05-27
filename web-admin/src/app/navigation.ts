@@ -10,6 +10,7 @@ import {
   TeamOutlined,
   UserSwitchOutlined,
 } from '@ant-design/icons'
+import { resolveDevBreadcrumbs } from '@/app/devOnlyNavigation'
 
 export interface StaticNavItem {
   key: string
@@ -196,6 +197,11 @@ export function resolveBreadcrumbs(
 
   if (pathname === '/config/webhook-deliveries') {
     return [{ label: '系统配置' }, { label: '审计与集成' }, { label: 'Webhook 记录' }]
+  }
+
+  const devBreadcrumbs = resolveDevBreadcrumbs(pathname)
+  if (devBreadcrumbs) {
+    return devBreadcrumbs
   }
 
   const editEntry = collectionEntries.find((item) => pathname === getModelEditPath(item.collectionName))

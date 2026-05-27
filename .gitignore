@@ -1,7 +1,13 @@
 node_modules
 dist
 .DS_Store
+*.log
+*.tsbuildinfo
+*.swp
+*.swo
+*~
 .claude/
+.mcp.json
 .env
 .env.local
 .env.*.local
@@ -11,8 +17,6 @@ web-admin/.env.local
 web-admin/.env.development
 web-admin/.env.production.local
 coverage
-*.log
-*.tsbuildinfo
 web-admin/dist
 cloudfunctions/**/node_modules
 cloudfunctions/**/tcb_custom_login.json
@@ -20,3 +24,8 @@ local-server/cloudbase.local.json
 cloudbaserc.json
 .cloudbase
 MODELING_CHECKLIST.md
+web-admin/test-reports/
+web-admin/tests/.auth/
+.playwright-mcp/
+web-admin/test-results/
+web-admin/playwright-report/

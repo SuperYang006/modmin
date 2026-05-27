@@ -51,6 +51,10 @@ function isConfigPath(path: string) {
   return path === '/config/models' || path.startsWith('/config/')
 }
 
+function isDevPath(path: string) {
+  return import.meta.env.DEV && path.startsWith('/dev/')
+}
+
 function isGeneratedPath(path: string) {
   return path.startsWith('/generated/')
 }
@@ -72,6 +76,7 @@ export function PageTabs({ collectionEntries }: PageTabsProps) {
 
   // 判断某个 path 对当前用户是否可访问
   function isAccessible(path: string) {
+    if (isDevPath(path)) return isSuperAdmin
     if (isConfigPath(path)) return isSuperAdmin
     if (isGeneratedPath(path)) {
       const collectionName = getCollectionNameFromPath(path, collectionEntries)
@@ -94,7 +99,7 @@ export function PageTabs({ collectionEntries }: PageTabsProps) {
   }, [isSuperAdmin, permMap, collectionEntries])
 
   useEffect(() => {
-    if (location.pathname === '/login' || !isAccessible(location.pathname)) return
+    if (location.pathname === '/login' || location.pathname === '/' || !isAccessible(location.pathname)) return
     const label = buildLabel(location.pathname, collectionEntries)
     setTabs((prev) => {
       const existing = prev.find((tab) => tab.key === currentPath)
@@ -115,6 +120,16 @@ export function PageTabs({ collectionEntries }: PageTabsProps) {
   useEffect(() => {
     persistTabs(tabs)
   }, [tabs])
+
+  useEffect(() => {
+    function handleCloseCurrentTab() {
+      setTabs((prev) => prev.filter((tab) => tab.key !== currentPath))
+    }
+    window.addEventListener('page-tab:close-current', handleCloseCurrentTab)
+    return () => {
+      window.removeEventListener('page-tab:close-current', handleCloseCurrentTab)
+    }
+  }, [currentPath])
 
   useEffect(() => {
     if (!activeTabRef.current || !scrollerRef.current) return

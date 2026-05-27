@@ -12,6 +12,73 @@ function run(command, args, options = {}) {
   })
 }
 
+function runCapture(command, args, options = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { shell: false, ...options })
+    let stdout = ''
+    let stderr = ''
+    const logger = options.logger || null
+
+    function flushBufferedLines(factory, bufferRef, text) {
+      bufferRef.value += text
+      const parts = bufferRef.value.split(/\r?\n|\r/g)
+      bufferRef.value = parts.pop() || ''
+      for (const part of parts) {
+        const line = part.trim()
+        if (!line || !logger) continue
+        factory(line)
+      }
+    }
+
+    const stdoutBuffer = { value: '' }
+    const stderrBuffer = { value: '' }
+
+    child.stdout?.on('data', (chunk) => {
+      const text = String(chunk)
+      stdout += text
+      process.stdout.write(text)
+      flushBufferedLines((line) => logger?.log?.(line), stdoutBuffer, text)
+    })
+
+    child.stderr?.on('data', (chunk) => {
+      const text = String(chunk)
+      stderr += text
+      process.stderr.write(text)
+      flushBufferedLines((line) => logger?.warn?.(line), stderrBuffer, text)
+    })
+
+    child.on('error', reject)
+    child.on('exit', (code) => {
+      const trailingStdout = stdoutBuffer.value.trim()
+      const trailingStderr = stderrBuffer.value.trim()
+      if (trailingStdout && logger?.log) {
+        logger.log(trailingStdout)
+      }
+      if (trailingStderr && logger?.warn) {
+        logger.warn(trailingStderr)
+      }
+      if (code === 0) {
+        resolve({ stdout, stderr })
+        return
+      }
+      const error = new Error(`${command} ${args.join(' ')} exited with ${code}`)
+      error.stdout = stdout
+      error.stderr = stderr
+      error.exitCode = code
+      reject(error)
+    })
+  })
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function isRetryableHostingError(error) {
+  const text = `${error?.message || ''}\n${error?.stdout || ''}\n${error?.stderr || ''}`
+  return /EPIPE|ETIMEDOUT|ECONNRESET|socket hang up|FetchError|File transfer in progress|cos\./i.test(text)
+}
+
 function normalizeCloudPath(input) {
   let p = String(input || '').trim()
   if (!p || p === '/' || p === '.') return '/'
@@ -58,7 +125,7 @@ async function buildWeb(repoRoot) {
   await run('npm', ['--prefix', 'web-admin', 'run', 'build'], { cwd: repoRoot })
 }
 
-async function deployWebHosting({ repoRoot, envId, cloudPath }) {
+async function deployWebHosting({ repoRoot, envId, cloudPath, logger = console, maxAttempts = 3 }) {
   const normalizedPath = normalizeCloudPath(cloudPath)
   if (!normalizedPath) {
     throw new Error('无效的静态托管目录路径')
@@ -70,9 +137,23 @@ async function deployWebHosting({ repoRoot, envId, cloudPath }) {
     throw new Error(mismatch)
   }
 
-  await run('npx', ['tcb', 'hosting', 'deploy', 'web-admin/dist', normalizedPath, '-e', envId], {
-    cwd: repoRoot,
-  })
+  const args = ['tcb', 'hosting', 'deploy', 'web-admin/dist', normalizedPath, '-e', envId]
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      logger.log(`  → 开始上传静态资源（第 ${attempt}/${maxAttempts} 次）`)
+      await runCapture('npx', args, { cwd: repoRoot, logger })
+      logger.log('  ✓ 静态资源上传完成')
+      return
+    } catch (error) {
+      if (!isRetryableHostingError(error) || attempt === maxAttempts) {
+        throw error
+      }
+      const waitMs = attempt * 2000
+      logger.warn(`  ! 静态资源上传失败，检测到可重试网络错误，${waitMs}ms 后重试`)
+      await sleep(waitMs)
+    }
+  }
 }
 
 function getHostingDomain(envId, repoRoot) {

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon --watch index.js --watch ../cloudfunctions index.js"
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "@cloudbase/node-sdk": "^2.7.3",

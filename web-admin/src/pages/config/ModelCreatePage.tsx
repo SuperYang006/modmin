@@ -296,6 +296,7 @@ export function ModelCreatePage() {
     }
 
     window.dispatchEvent(new CustomEvent('modmin:schema-updated'))
+    window.dispatchEvent(new CustomEvent('page-tab:close-current'))
     navigate('/config/models')
   }
 
@@ -545,7 +546,7 @@ export function ModelCreatePage() {
         title="创建数据模型"
         extra={
           <Space>
-            <Button onClick={() => navigate('/config/models')}>返回模型工作台</Button>
+            <Button onClick={() => { window.dispatchEvent(new CustomEvent('page-tab:close-current')); navigate('/config/models') }}>返回模型工作台</Button>
             <Button type="primary" loading={saving} onClick={() => void handleSubmit()}>
               保存模型
             </Button>

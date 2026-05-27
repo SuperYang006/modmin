@@ -35,6 +35,7 @@ export function GeneratedCrudFormPage() {
   const contextPerm = useModelPermission(schemaCollectionName)
 
   function backToList() {
+    window.dispatchEvent(new CustomEvent('page-tab:close-current'))
     navigate(pageCode ? `/generated/${pageCode}` : '/')
   }
 

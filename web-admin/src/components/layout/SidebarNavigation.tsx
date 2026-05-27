@@ -9,6 +9,7 @@ import {
   RightOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
+import { devNavTree } from '@/app/devOnlyNavigation'
 import { configNavTree, getGeneratedPagePath } from '@/app/navigation'
 import type { SidebarMenuNode } from '@/app/navigation'
 import { getModelIconComponent } from '@/components/common/modelIcons'
@@ -38,7 +39,7 @@ export function SidebarNavigation({ collections, menuGroups }: SidebarNavigation
 
   const configMenuTree: SidebarMenuNode[] = useMemo(
     () =>
-      configNavTree.map((group) => ({
+      [...configNavTree, ...devNavTree].map((group) => ({
         key: `config_group_${group.key}`,
         label: group.label,
         icon: group.icon,

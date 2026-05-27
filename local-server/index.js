@@ -8,6 +8,8 @@ require('module').Module._initPaths()
 
 const express = require('express')
 const multer = require('multer')
+const { runDeployment, normalizeBasePath } = require('../scripts/lib/deploy-runner.js')
+const { getDeployConfigSnapshot } = require('../scripts/lib/deploy-config-reader.js')
 
 // 读取本地开发凭据（SecretId/SecretKey + EnvId）
 const configPath = path.resolve(__dirname, 'cloudbase.local.json')
@@ -83,13 +85,175 @@ const functions = {
 
 const app = express()
 app.use(express.json())
-
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') return res.sendStatus(204)
   next()
+})
+
+const deploymentTasks = new Map()
+
+function createApiResponse(code, message, data) {
+  return { code, message, data }
+}
+
+function toErrorMessage(error) {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function sanitizeDeployPayload(payload) {
+  const source = payload || {}
+  const existingConfig = getDeployConfigSnapshot()
+  return {
+    envId: String(source.envId || existingConfig.values.envId || '').trim(),
+    region: String(source.region || '').trim(),
+    secretId: String(source.secretId || existingConfig.values.secretId || '').trim(),
+    secretKey: String(source.secretKey || existingConfig.values.secretKey || '').trim(),
+    jwtSecret: String(source.jwtSecret || '').trim(),
+    authHttpUrl: String(source.authHttpUrl || existingConfig.values.authHttpUrl || '').trim(),
+    loginKeyPath: String(source.loginKeyPath || '').trim(),
+    basePath: normalizeBasePath(source.basePath),
+    adminUserName: String(source.adminUserName || '').trim(),
+    adminPassword: String(source.adminPassword || ''),
+    adminNickName: String(source.adminNickName || '').trim(),
+    overwriteAdmin: source.overwriteAdmin !== false,
+    cleanHosting: source.cleanHosting === true,
+  }
+}
+
+async function getLocalBootstrapStatus() {
+  const existingConfig = getDeployConfigSnapshot()
+  const status = {
+    envId: existingConfig.values.envId || localConfig.envId || '',
+    configDetected: existingConfig.detected,
+    authHttpUrlConfigured: Boolean(existingConfig.values.authHttpUrl),
+    collectionReady: false,
+    adminUserExists: false,
+    adminUserName: existingConfig.values.adminUserName || 'admin',
+    stage: 'missing_collections',
+  }
+
+  try {
+    const result = await storageApp.database().collection('modmin_admin_users').where({ roleCode: 'role_super_admin' }).limit(1).get()
+    const adminUser = result.data?.[0]
+    status.collectionReady = true
+    status.adminUserExists = Boolean(adminUser?._id)
+    status.adminUserName = adminUser?.userName || status.adminUserName
+    status.stage = status.adminUserExists ? 'ready' : 'missing_admin'
+    return status
+  } catch (error) {
+    const message = toErrorMessage(error)
+    if (/Table not exist|Db or Table not exist|COLLECTION_NOT_EXIST|ResourceNotFound/i.test(message)) {
+      return status
+    }
+    throw error
+  }
+}
+
+app.get('/_local/deploy/config', (_req, res) => {
+  return res.json(createApiResponse(0, 'ok', getDeployConfigSnapshot()))
+})
+
+app.get('/_local/bootstrap/status', async (_req, res) => {
+  const status = await getLocalBootstrapStatus()
+  return res.json(createApiResponse(0, 'ok', status))
+})
+
+function createDeploymentTask(payload) {
+  const taskId = `deploy_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const task = {
+    taskId,
+    status: 'queued',
+    payload,
+    logs: [],
+    result: null,
+    error: '',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    startedAt: 0,
+    finishedAt: 0,
+  }
+  deploymentTasks.set(taskId, task)
+  return task
+}
+
+function appendTaskLog(task, level, message) {
+  task.logs.push({
+    id: `${task.taskId}_${task.logs.length + 1}`,
+    level,
+    message,
+    time: Date.now(),
+  })
+  if (task.logs.length > 400) {
+    task.logs = task.logs.slice(-400)
+  }
+  task.updatedAt = Date.now()
+}
+
+async function startDeploymentTask(task) {
+  task.status = 'running'
+  task.startedAt = Date.now()
+  task.updatedAt = Date.now()
+
+  try {
+    const result = await runDeployment(task.payload, {
+      onLog(entry) {
+        appendTaskLog(task, entry.level, entry.message)
+      },
+    })
+    task.status = 'success'
+    task.result = result
+    task.finishedAt = Date.now()
+    task.updatedAt = Date.now()
+  } catch (error) {
+    task.status = 'error'
+    task.error = toErrorMessage(error)
+    task.finishedAt = Date.now()
+    task.updatedAt = Date.now()
+    appendTaskLog(task, 'error', task.error)
+  }
+}
+
+app.get('/_local/deploy/tasks/:taskId', (req, res) => {
+  const task = deploymentTasks.get(req.params.taskId)
+  if (!task) {
+    return res.json(createApiResponse(40404, '部署任务不存在', null))
+  }
+
+  return res.json(createApiResponse(0, 'ok', {
+    taskId: task.taskId,
+    status: task.status,
+    logs: task.logs,
+    result: task.result,
+    error: task.error,
+    createdAt: task.createdAt,
+    updatedAt: task.updatedAt,
+    startedAt: task.startedAt,
+    finishedAt: task.finishedAt,
+  }))
+})
+
+app.post('/_local/deploy/tasks', async (req, res) => {
+  const runningTask = Array.from(deploymentTasks.values()).find((task) => task.status === 'queued' || task.status === 'running')
+  if (runningTask) {
+    return res.json(createApiResponse(40901, '已有部署任务正在执行，请等待当前任务完成', {
+      taskId: runningTask.taskId,
+      status: runningTask.status,
+    }))
+  }
+
+  const payload = sanitizeDeployPayload(req.body)
+  const task = createDeploymentTask(payload)
+  appendTaskLog(task, 'info', '部署任务已创建，准备开始执行')
+
+  void startDeploymentTask(task)
+
+  return res.json(createApiResponse(0, 'ok', {
+    taskId: task.taskId,
+    status: task.status,
+  }))
 })
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } })
