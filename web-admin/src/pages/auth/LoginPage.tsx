@@ -20,11 +20,11 @@ function renderBootstrapAlert(
   }
 
   if (loading) {
-    return <Alert type="info" showIcon message="正在检查本地初始化状态" description="首次接入项目时，需要先确认本地 CloudBase 环境是否已经完成初始化。" />
+    return <Alert type="info" showIcon title="正在检查本地初始化状态" description="首次接入项目时，需要先确认本地 CloudBase 环境是否已经完成初始化。" />
   }
 
   if (error) {
-    return <Alert type="warning" showIcon message="本地初始化状态读取失败" description={`无法自动判断是否已创建管理员账号：${error}`} />
+    return <Alert type="warning" showIcon title="本地初始化状态读取失败" description={`无法自动判断是否已创建管理员账号：${error}`} />
   }
 
   if (stage === 'ready') {
@@ -32,9 +32,9 @@ function renderBootstrapAlert(
       <Alert
         type="success"
         showIcon
-        message="本地开发环境已完成初始化"
+        title="本地开发环境已完成初始化"
         description={(
-          <Space direction="vertical" size={10}>
+          <Space orientation="vertical" size={10}>
             <span>检测到可登录管理员账号：{adminUserName || 'admin'}。</span>
             <span>如果忘记密码，可以通过本地部署工具重新设置管理员密码。</span>
             <Button size="small" onClick={() => navigate('/dev/deploy', { state: { from: '/login' } })}>
@@ -51,9 +51,9 @@ function renderBootstrapAlert(
       <Alert
         type="warning"
         showIcon
-        message="还没有管理员账号"
+        title="还没有管理员账号"
         description={(
-          <Space direction="vertical" size={10}>
+          <Space orientation="vertical" size={10}>
             <span>当前本地环境已经连接到 CloudBase，但还没创建首个管理员。请先完成一次初始化部署，再回来登录。</span>
             <Button type="primary" onClick={() => navigate('/dev/deploy', { state: { from: '/login' } })}>
               去本地部署工具初始化管理员
@@ -68,9 +68,9 @@ function renderBootstrapAlert(
     <Alert
       type="warning"
       showIcon
-      message="本地环境还没完成初始化"
+      title="本地环境还没完成初始化"
       description={(
-        <Space direction="vertical" size={10}>
+        <Space orientation="vertical" size={10}>
           <span>当前还没检测到关键系统集合或首个管理员账号。第一次使用项目时，请先完成本地部署初始化。</span>
           <Button type="primary" onClick={() => navigate('/dev/deploy', { state: { from: '/login' } })}>
             去本地部署工具完成初始化
@@ -157,7 +157,7 @@ export function LoginPage() {
         </section>
 
         <section className="app-auth-card">
-          <Space direction="vertical" size={22} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={22} style={{ width: '100%' }}>
             <div className="app-auth-head">
               <Typography.Title level={1} style={{ margin: 0 }}>
                 欢迎回来
@@ -195,7 +195,7 @@ export function LoginPage() {
                   size="large"
                 />
               </Form.Item>
-              {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
+              {error ? <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} /> : null}
               <Button type="primary" htmlType="submit" loading={submitting} block size="large" className="app-auth-submit">
                 登录
               </Button>

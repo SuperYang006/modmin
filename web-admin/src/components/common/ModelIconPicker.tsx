@@ -74,7 +74,7 @@ export function ModelIconPicker({ value, onChange, disabled }: ModelIconPickerPr
       trigger="click"
       placement="bottomLeft"
       content={popoverContent}
-      overlayClassName="model-icon-picker-overlay"
+      classNames={{ root: 'model-icon-picker-overlay' }}
     >
       <Button
         disabled={disabled}

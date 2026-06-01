@@ -1766,11 +1766,11 @@ function UploadField(props: FormRendererProps & { accept: string }) {
           {previewImageUrl ? (
             <Image
               preview={{
-                visible: previewVisible,
+                open: previewVisible,
                 src: previewImageUrl,
-                onVisibleChange: (visible) => {
-                  setPreviewVisible(visible)
-                  if (!visible) {
+                onOpenChange: (open) => {
+                  setPreviewVisible(open)
+                  if (!open) {
                     setPreviewImageUrl('')
                   }
                 },

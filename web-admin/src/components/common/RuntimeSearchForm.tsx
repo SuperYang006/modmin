@@ -135,22 +135,26 @@ export function RuntimeSearchForm(props: RuntimeSearchFormProps) {
                 )
               })}
               <div className="runtime-search-grid-actions">
-                <Button
-                  type="text"
-                  className="runtime-search-action-ghost"
-                  onClick={clearAll}
-                  disabled={loading || activeCount === 0}
-                >
-                  重置
-                </Button>
-                <Button
-                  type="primary"
-                  className="runtime-search-action-primary"
-                  onClick={() => onSearch?.()}
-                  disabled={loading}
-                >
-                  查询
-                </Button>
+                {onClear ? (
+                  <Button
+                    type="text"
+                    className="runtime-search-action-ghost"
+                    onClick={clearAll}
+                    disabled={loading || activeCount === 0}
+                  >
+                    重置
+                  </Button>
+                ) : null}
+                {onSearch ? (
+                  <Button
+                    type="primary"
+                    className="runtime-search-action-primary"
+                    onClick={() => onSearch()}
+                    disabled={loading}
+                  >
+                    查询
+                  </Button>
+                ) : null}
               </div>
             </div>
           </div>

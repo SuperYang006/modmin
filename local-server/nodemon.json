@@ -5,6 +5,7 @@
     "../cloudfunctions/modmin_auth/src",
     "../cloudfunctions/modmin_audit/src",
     "../cloudfunctions/modmin_crud/src",
+    "../cloudfunctions/modmin_import_export/src",
     "../cloudfunctions/modmin_runtime/src",
     "../cloudfunctions/modmin_schema/src",
     "../cloudfunctions/modmin_system/src",

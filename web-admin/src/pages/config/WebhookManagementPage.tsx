@@ -281,7 +281,7 @@ export function WebhookManagementPage() {
         extra={<Button type="primary" onClick={handleCreate}>新建 Webhook</Button>}
       />
       <PanelCard>
-        {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
+        {error ? <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} /> : null}
         <Form form={form} layout="vertical" className="audit-log-filter-form" onFinish={(values) => handleSearch(values)}>
           <div className="audit-log-filter-grid">
             <Form.Item name="targetType" label="目标类型">
@@ -330,7 +330,7 @@ export function WebhookManagementPage() {
       <Drawer
         title={editingItem ? '编辑 Webhook' : '新建 Webhook'}
         open={drawerOpen}
-        width={640}
+        size={640}
         onClose={() => setDrawerOpen(false)}
         footer={
           <Space style={{ justifyContent: 'space-between', width: '100%' }}>

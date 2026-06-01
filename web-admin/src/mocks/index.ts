@@ -34,6 +34,15 @@ import type { SaveRolePayload } from '@/types/schema'
 import type { ConsoleOverviewResult } from '@/types/schema'
 import type { RolePermissionRow } from '@/runtime/loader/rolePermissions'
 import type { SaveAdminUserPayload } from '@/runtime/loader/adminUsers'
+import {
+  confirmImportMock,
+  downloadImportTemplateMock,
+  exportRecordsMock,
+  getTransferJobDetailMock,
+  listTransferJobsMock,
+  listTransferCollectionsMock,
+  previewImportMock,
+} from '@/mocks/importExport'
 
 const mockAdminUser: AdminUserInfo = {
   userId: 'admin_user_demo',
@@ -260,6 +269,51 @@ export async function dispatchMockCloudFunction<TData, TResult>(
     const result = deleteCollectionSchemaMock(input.collectionName)
     if (!result) return err(40404, '模型不存在', requestId)
     return ok(result as TResult, requestId)
+  }
+
+  // ─── import_export ───────────────────────────────────────
+  if (functionName === 'import_export' && payload.action === 'listTransferCollections') {
+    return ok(listTransferCollectionsMock() as TResult, requestId)
+  }
+
+  if (functionName === 'import_export' && payload.action === 'downloadImportTemplate') {
+    return ok(downloadImportTemplateMock(payload.data as never) as TResult, requestId)
+  }
+
+  if (functionName === 'import_export' && payload.action === 'exportRecords') {
+    return ok(exportRecordsMock(payload.data as never) as TResult, requestId)
+  }
+
+  if (functionName === 'import_export' && payload.action === 'previewImport') {
+    try {
+      return ok(previewImportMock(payload.data as never) as TResult, requestId)
+    } catch (error) {
+      return err(40002, error instanceof Error ? error.message : '导入预检失败', requestId)
+    }
+  }
+
+  if (functionName === 'import_export' && payload.action === 'confirmImport') {
+    try {
+      return ok(confirmImportMock(payload.data as never) as TResult, requestId)
+    } catch (error) {
+      return err(40002, error instanceof Error ? error.message : '确认导入失败', requestId)
+    }
+  }
+
+  if (functionName === 'import_export' && payload.action === 'getTransferJobDetail') {
+    return ok(getTransferJobDetailMock((payload.data as { jobId: string }).jobId) as TResult, requestId)
+  }
+
+  if (functionName === 'import_export' && payload.action === 'listTransferJobs') {
+    const input = payload.data as {
+      jobType?: 'export' | 'import_preview' | 'import_confirm'
+      collectionName?: string
+      status?: 'pending' | 'previewed' | 'processing' | 'success' | 'partialSuccess' | 'failed'
+      format?: 'xlsx' | 'csv' | 'json'
+      pageNo?: number
+      pageSize?: number
+    }
+    return ok(listTransferJobsMock(input) as TResult, requestId)
   }
 
   if (functionName === 'schema' && payload.action === 'sortCollectionSchemas') {

@@ -5,7 +5,6 @@ import type {
   CurrentUserResult,
   LoginRequestData,
   LoginResult,
-  RefreshTokenResult,
   ValidateSessionResult,
 } from '@/types/auth'
 
@@ -64,33 +63,6 @@ export async function loginWithPassword(data: LoginRequestData) {
   return response
 }
 
-export async function refreshAccessToken(): Promise<boolean> {
-  const session = getStoredAuthSession()
-  if (!session?.refreshToken) return false
-
-  const response = await callCloudFunction<{ refreshToken: string }, RefreshTokenResult>('modmin_auth', {
-    action: 'refreshToken',
-    data: { refreshToken: session.refreshToken },
-    meta: { requestId: `auth_refresh_${Date.now()}`, clientTime: Date.now() },
-  })
-
-  if (response.code !== 0) {
-    clearAuthSession()
-    return false
-  }
-
-  if (apiMode === 'tcb') {
-    try {
-      await signInWithCustomTicket(response.data.ticket)
-    } catch {
-      // ticket 刷新失败不影响主流程
-    }
-  }
-
-  saveAuthSession(response.data)
-  return true
-}
-
 export async function validateAdminSession() {
   const session = getStoredAuthSession()
 
@@ -106,6 +78,7 @@ export async function validateAdminSession() {
 
   // Access Token 过期时先尝试用 Refresh Token 续期
   if (isAccessTokenExpired(session)) {
+    const { refreshAccessToken } = await import('@/runtime/loader/authRefresh')
     const refreshed = await refreshAccessToken()
     if (!refreshed) {
       return {

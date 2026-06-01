@@ -7,7 +7,6 @@ import {
   Col,
   Empty,
   Input,
-  List,
   Row,
   Skeleton,
   Space,
@@ -41,6 +40,7 @@ import { getFieldTypeIcon } from '@/pages/config/fieldTypeIcon'
 import { getFieldTypeTone } from '@/pages/config/fieldTypeTone'
 import { getFieldSummaryLines } from '@/pages/config/fieldSummary'
 import { FieldConfigModal } from '@/pages/config/components/FieldConfigModal'
+import { ModelFieldList } from '@/pages/config/components/ModelFieldList'
 import { SystemFieldSettingsCard } from '@/pages/config/components/SystemFieldSettingsCard'
 import type { SystemFieldSettings } from '@/types/schema'
 
@@ -589,7 +589,7 @@ export function ModelEditPage() {
     autoScrollFrameRef.current = requestAnimationFrame(tick)
   }
 
-  function handleFieldDragOver(event: DragEvent<HTMLDivElement>, index: number) {
+  function handleFieldDragOver(event: DragEvent<HTMLElement>, index: number) {
     event.preventDefault()
 
     const container = fieldListBodyRef.current
@@ -669,7 +669,7 @@ export function ModelEditPage() {
         }
       />
       <PanelCard compact>
-        {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} /> : null}
+        {error ? <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} /> : null}
 
         <div className="model-editor-meta-grid">
           <span className="model-editor-meta-field">
@@ -712,83 +712,20 @@ export function ModelEditPage() {
               </div>
               <div ref={fieldListBodyRef} className="model-field-workspace-body">
                 {form.fields.length > 0 ? (
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={form.fields}
-                    renderItem={(field, index) => (
-                      <List.Item
-                        className={[
-                          draggingFieldIndex === index ? 'is-dragging' : '',
-                          dragOverFieldIndex === index && draggingFieldIndex !== index ? 'is-drag-over' : '',
-                        ]
-                          .filter(Boolean)
-                          .join(' ')}
-                        draggable
-                        onDragStart={() => handleFieldDragStart(index)}
-                        onDragOver={(event) => handleFieldDragOver(event, index)}
-                        onDrop={() => handleFieldDrop(index)}
-                        onDragEnd={resetFieldDragState}
-                        actions={[
-                          <Space key="sort" size={4} className="model-field-sort-actions">
-                            <Button key="up" type="text" size="small" disabled={index === 0} icon={<ArrowUpOutlined />} onClick={() => moveField(index, 'up')} />
-                            <Button
-                              key="down"
-                              type="text"
-                              size="small"
-                              disabled={index === form.fields.length - 1}
-                              icon={<ArrowDownOutlined />}
-                              onClick={() => moveField(index, 'down')}
-                            />
-                          </Space>,
-                          <Button key="edit" type="link" icon={<EditOutlined />} onClick={() => openEditFieldModal(index)}>
-                            编辑
-                          </Button>,
-                          <Button key="delete" type="link" danger icon={<DeleteOutlined />} onClick={() => removeField(index)}>
-                            删除
-                          </Button>,
-                        ]}
-                      >
-                        <List.Item.Meta
-                          avatar={
-                            <div className="model-field-item-avatar">
-                              <span className="model-field-item-index">{index + 1}</span>
-                              <span className="model-field-item-icon">{getFieldTypeIcon(field.type)}</span>
-                            </div>
-                          }
-                          title={
-                            <Space wrap className="model-field-item-title">
-                              <span className="model-field-item-name">{field.title}</span>
-                              <Tag color={getFieldTypeTone(field.type)} className="model-field-type-tag">
-                                {getSharedFieldMeta(field.type).label}
-                              </Tag>
-                              <Tag color={field.required ? 'error' : 'default'}>{field.required ? '必填' : '非必填'}</Tag>
-                              {field.hidden ? <Tag>隐藏</Tag> : null}
-                              {field.allowMultiple && ['image', 'file', 'video', 'audio'].includes(field.type) ? <Tag color="processing">多值</Tag> : null}
-                              {isFieldSearchable(field.type) ? (
-                                <Tooltip title="启用后，该字段将出现在列表页的搜索栏中">
-                                  <Tag
-                                    color={searchFieldKeys.includes(field.key) ? undefined : 'default'}
-                                    className={searchFieldKeys.includes(field.key) ? 'model-field-search-tag model-field-search-tag--active' : 'model-field-search-tag'}
-                                    onClick={() => toggleSearchField(field.key, !searchFieldKeys.includes(field.key))}
-                                  >
-                                    {searchFieldKeys.includes(field.key) ? '已加入搜索' : '加入搜索'}
-                                  </Tag>
-                                </Tooltip>
-                              ) : null}
-                            </Space>
-                          }
-                          description={
-                            <Space direction="vertical" size={6} className="model-field-item-summary">
-                              {getFieldSummaryLines(field).map((line) => (
-                                <Typography.Text key={line} type="secondary" className="model-field-item-summary-line">
-                                  {line}
-                                </Typography.Text>
-                              ))}
-                            </Space>
-                          }
-                        />
-                      </List.Item>
-                    )}
+                  <ModelFieldList
+                    fields={form.fields}
+                    draggingFieldIndex={draggingFieldIndex}
+                    dragOverFieldIndex={dragOverFieldIndex}
+                    searchFieldKeys={searchFieldKeys}
+                    isFieldSearchable={isFieldSearchable}
+                    onToggleSearchField={toggleSearchField}
+                    onMoveField={moveField}
+                    onEditField={openEditFieldModal}
+                    onRemoveField={removeField}
+                    onFieldDragStart={handleFieldDragStart}
+                    onFieldDragOver={handleFieldDragOver}
+                    onFieldDrop={handleFieldDrop}
+                    onFieldDragEnd={resetFieldDragState}
                   />
                 ) : (
                   <div className="model-field-workspace-empty">

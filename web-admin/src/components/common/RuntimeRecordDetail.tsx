@@ -53,8 +53,8 @@ export function RuntimeRecordDetail(props: RuntimeRecordDetailProps) {
         </div>
       }
       onClose={onClose}
-      width={820}
-      destroyOnClose
+      size={820}
+      destroyOnHidden
       placement="right"
       styles={{
         body: { padding: 20, background: 'var(--bg-layout)' },
@@ -78,7 +78,7 @@ export function RuntimeRecordDetail(props: RuntimeRecordDetailProps) {
         </div>
       }
     >
-      <Space direction="vertical" size={16} style={{ display: 'flex' }}>
+      <Space orientation="vertical" size={16} style={{ display: 'flex' }}>
         {systemFields.length > 0 ? (
           <div className="runtime-record-form-system-block">
             <div className="runtime-record-form-system-head">
@@ -110,7 +110,7 @@ export function RuntimeRecordDetail(props: RuntimeRecordDetailProps) {
                   <div key={field.fieldKey} className="runtime-record-detail-item">
                     <div className="runtime-record-detail-item-head">
                       <strong>{field.label}</strong>
-                      {field.required ? <Tag color="error" bordered={false}>必填</Tag> : null}
+                      {field.required ? <Tag color="error" variant="filled">必填</Tag> : null}
                     </div>
                     <div className="runtime-record-detail-item-value">
                       {renderDetailFieldValue(field, record[field.fieldKey], dictMap, collectionName)}

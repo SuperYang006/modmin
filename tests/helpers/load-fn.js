@@ -33,6 +33,7 @@ const FUNCTION_ENTRIES = {
   modmin_schema: 'cloudfunctions/modmin_schema/src/index.js',
   modmin_runtime: 'cloudfunctions/modmin_runtime/src/index.js',
   modmin_webhook: 'cloudfunctions/modmin_webhook/src/index.js',
+  modmin_import_export: 'cloudfunctions/modmin_import_export/src/index.js',
 }
 
 // 每次调用都强制清掉云函数模块缓存，避免模块顶层闭包共享 db 引用。

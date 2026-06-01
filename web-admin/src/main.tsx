@@ -20,7 +20,7 @@ function Root() {
   return (
     <ConfigProvider locale={zhCN} theme={buildAntdTheme(preset)}>
       <AntdApp>
-        <HashRouter>
+        <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <App />
         </HashRouter>
       </AntdApp>

@@ -11,7 +11,7 @@ export function SystemFieldSettingsCard(props: SystemFieldSettingsCardProps) {
   const value = props.value
 
   const helpContent = (
-    <Space direction="vertical" size={8} style={{ width: 320 }}>
+    <Space orientation="vertical" size={8} style={{ width: 320 }}>
       <Typography.Text type="secondary" className="model-system-field-desc">
         CMS 自动维护这些字段，用于记录创建、更新和删除信息，避免与业务字段重名。
       </Typography.Text>
@@ -41,7 +41,7 @@ export function SystemFieldSettingsCard(props: SystemFieldSettingsCardProps) {
           label: (
             <Space size={6}>
               <span>系统字段</span>
-              <Popover content={helpContent} trigger="hover" placement="rightTop" overlayClassName="model-system-field-popover">
+              <Popover content={helpContent} trigger="hover" placement="rightTop" classNames={{ root: 'model-system-field-popover' }}>
                 <Button
                   type="text"
                   size="small"
@@ -53,7 +53,7 @@ export function SystemFieldSettingsCard(props: SystemFieldSettingsCardProps) {
             </Space>
           ),
           children: (
-            <Space direction="vertical" size={8} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={8} style={{ width: '100%' }}>
               <div className="model-system-field-grid">
                 <div className="model-system-field-item">
                   <span>列表显示文档 ID</span>

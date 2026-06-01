@@ -99,7 +99,7 @@ export function AdminLayout() {
             <AppearanceSettings />
             <Dropdown
               placement="bottomRight"
-              overlayClassName="app-user-dropdown"
+              classNames={{ root: 'app-user-dropdown' }}
               menu={{
                 items: [
                   {
@@ -142,7 +142,7 @@ export function AdminLayout() {
                     <span className="app-user-name">{displayName}</span>
                     <span className="app-user-role">{roleLabel}</span>
                   </div>
-                  <Divider type="vertical" className="app-user-divider" />
+                  <Divider orientation="vertical" className="app-user-divider" />
                   <span className="app-user-status">在线</span>
                 </Space>
               </Button>

@@ -77,6 +77,7 @@ const functions = {
   modmin_auth: require('../cloudfunctions/modmin_auth/src/index.js'),
   modmin_audit: require('../cloudfunctions/modmin_audit/src/index.js'),
   modmin_crud: require('../cloudfunctions/modmin_crud/src/index.js'),
+  modmin_import_export: require('../cloudfunctions/modmin_import_export/src/index.js'),
   modmin_runtime: require('../cloudfunctions/modmin_runtime/src/index.js'),
   modmin_schema: require('../cloudfunctions/modmin_schema/src/index.js'),
   modmin_system: require('../cloudfunctions/modmin_system/src/index.js'),

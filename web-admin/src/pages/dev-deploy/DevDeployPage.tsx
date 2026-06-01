@@ -250,7 +250,7 @@ export default function DevDeployPage() {
         extra={<Tag color="warning">DEV ONLY</Tag>}
       />
 
-      {configError ? <Alert type="error" showIcon message={configError} /> : null}
+      {configError ? <Alert type="error" showIcon title={configError} /> : null}
 
       <Row gutter={[16, 16]}>
         <Col xs={24}>
@@ -288,7 +288,7 @@ export default function DevDeployPage() {
                 className="dev-deploy-overview-alert"
                 type="success"
                 showIcon
-                message="已检测到现有部署配置"
+                title="已检测到现有部署配置"
                 description={`已从 ${config.sources.localServerConfig || '本地配置'}${config.sources.webEnv ? `、${config.sources.webEnv}` : ''} 回填可复用字段。管理员密码不会回填。`}
               />
             ) : (
@@ -296,7 +296,7 @@ export default function DevDeployPage() {
                 className="dev-deploy-overview-alert"
                 type="info"
                 showIcon
-                message="尚未检测到可复用配置"
+                title="尚未检测到可复用配置"
                 description="首次初始化时，请按顺序填写云环境、JWT 密钥、HTTP 触发器地址和管理员账号。"
               />
             )}
@@ -409,7 +409,7 @@ export default function DevDeployPage() {
                       className="dev-deploy-inline-alert"
                       type="warning"
                       showIcon
-                      message="JWT 风险提醒"
+                      title="JWT 风险提醒"
                       description="生成新 JWT 密钥后，当前部署目标环境里依赖旧密钥签发的登录态会全部失效。只有确认需要整体轮换时才建议更换。"
                     />
                   </Col>
@@ -466,7 +466,7 @@ export default function DevDeployPage() {
                   className="dev-deploy-inline-alert"
                   type="warning"
                   showIcon
-                  message="管理员风险提醒"
+                  title="管理员风险提醒"
                   description={overwriteAdmin
                     ? '当前勾选了覆盖管理员账号。若该账号已存在，本次部署会重置其密码并覆盖显示信息。'
                     : '当前未勾选覆盖管理员账号。若环境里已存在该管理员，本次部署会保留原密码与账号信息。'}
@@ -499,9 +499,9 @@ export default function DevDeployPage() {
           <div className="dev-deploy-sidebar">
             <PanelCard title="任务状态">
               {!taskId ? (
-                <Alert type="warning" showIcon message="尚未提交部署任务" description="填写左侧表单后提交，任务状态和部署日志会出现在这里。" />
+                <Alert type="warning" showIcon title="尚未提交部署任务" description="填写左侧表单后提交，任务状态和部署日志会出现在这里。" />
               ) : (
-                <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                <Space orientation="vertical" size={16} style={{ width: '100%' }}>
                   <Descriptions size="small" column={1} bordered>
                     <Descriptions.Item label="任务 ID">{taskId}</Descriptions.Item>
                     <Descriptions.Item label="状态">
@@ -529,8 +529,8 @@ export default function DevDeployPage() {
                     </Descriptions.Item>
                   </Descriptions>
 
-                  {taskError ? <Alert type="error" showIcon message={taskError} /> : null}
-                  {task?.error ? <Alert type="error" showIcon message={task.error} /> : null}
+                  {taskError ? <Alert type="error" showIcon title={taskError} /> : null}
+                  {task?.error ? <Alert type="error" showIcon title={task.error} /> : null}
 
                   <div className="dev-deploy-stage-card">
                     <div className="dev-deploy-stage-row">

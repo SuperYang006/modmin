@@ -36,33 +36,69 @@ function resolveCloudFunctionName(functionName: string) {
   return `${functionPrefix}${functionName}`
 }
 
-// 多个并发请求同时遇到 access token 过期时，只发起一次 refresh，
-// 其余请求 await 同一个 promise 并使用 refresh 后的新 token。
-let pendingRefresh: Promise<string> | null = null
-
-async function performRefresh(): Promise<string> {
-  const { refreshAccessToken } = await import('@/runtime/loader/auth')
-  const refreshed = await refreshAccessToken()
-  if (!refreshed) {
-    clearAuthSession()
-    return ''
-  }
-  return getStoredAuthSession()?.accessToken ?? ''
-}
-
 async function getValidAccessToken(): Promise<string> {
   const session = getStoredAuthSession()
   if (!session) return ''
 
-  // refresh 进行中：所有并发请求都等同一个 promise，避免拿旧 token 发请求
-  if (pendingRefresh) return pendingRefresh
-
   if (isAccessTokenExpired(session)) {
-    pendingRefresh = performRefresh().finally(() => { pendingRefresh = null })
-    return pendingRefresh
+    const { refreshAccessToken } = await import('@/runtime/loader/authRefresh')
+    const refreshed = await refreshAccessToken()
+    if (!refreshed) {
+      clearAuthSession()
+      return ''
+    }
+    return getStoredAuthSession()?.accessToken ?? ''
   }
 
   return session.accessToken
+}
+
+// 后端判定 access token 过期时返回的 code。proactive 刷新（getValidAccessToken）漏判时由它触发兜底重发。
+const TOKEN_EXPIRED_CODE = 40102
+
+async function sendViaHttp<TData, TResult>(
+  resolvedName: string,
+  payload: ApiRequest<TData>,
+  accessToken: string,
+): Promise<ApiResponse<TResult>> {
+  const session = getStoredAuthSession()
+  const response = await fetch(`${localServerUrl}/${resolvedName}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      ...payload,
+      context: {
+        accessToken,
+        clientIp: session?.clientInfo?.clientIp || '',
+        userAgent: session?.clientInfo?.userAgent || '',
+      },
+    }),
+  })
+  return (await response.json()) as ApiResponse<TResult>
+}
+
+async function sendViaTcb<TData, TResult>(
+  resolvedName: string,
+  payload: ApiRequest<TData>,
+  accessToken: string,
+): Promise<ApiResponse<TResult>> {
+  const app = await getTcbApp()
+  if (typeof app.callFunction !== 'function') {
+    throw new Error('当前 CloudBase JS SDK 实例上不存在 callFunction，请检查 SDK 版本与初始化方式')
+  }
+  const session = getStoredAuthSession()
+  const result = await app.callFunction({
+    name: resolvedName,
+    data: {
+      ...payload,
+      context: {
+        accessToken,
+        clientIp: session?.clientInfo?.clientIp || '',
+        userAgent: session?.clientInfo?.userAgent || '',
+      },
+    },
+  })
+  return result?.result as ApiResponse<TResult>
 }
 
 export async function callCloudFunction<TData, TResult>(
@@ -80,48 +116,21 @@ export async function callCloudFunction<TData, TResult>(
     return res
   }
 
-  if (apiMode === 'http') {
-    const accessToken = isAuthCall ? '' : await getValidAccessToken()
-    const session = getStoredAuthSession()
-    const body = {
-      ...payload,
-      context: {
-        accessToken,
-        clientIp: session?.clientInfo?.clientIp || '',
-        userAgent: session?.clientInfo?.userAgent || '',
-      },
-    }
-    const response = await fetch(`${localServerUrl}/${resolvedName}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-    const res = (await response.json()) as ApiResponse<TResult>
-    maybeNotifyAuthExpired(resolvedName, res)
-    return res
-  }
+  const send = apiMode === 'http' ? sendViaHttp<TData, TResult> : sendViaTcb<TData, TResult>
 
-  const app = await getTcbApp()
   const accessToken = isAuthCall ? '' : await getValidAccessToken()
-  const session = getStoredAuthSession()
+  let res = await send(resolvedName, payload, accessToken)
 
-  if (typeof app.callFunction !== 'function') {
-    throw new Error('当前 CloudBase JS SDK 实例上不存在 callFunction，请检查 SDK 版本与初始化方式')
+  // 反应式兜底：proactive 提前判断因时钟偏差/休眠/网络延迟漏判时，后端会判过期返回 40102。
+  // 此时强制刷新一次并重发一次原请求，避免本可挽救的请求把用户直接踢回登录页。只重试一次防死循环。
+  if (!isAuthCall && res?.code === TOKEN_EXPIRED_CODE) {
+    const { refreshAccessToken } = await import('@/runtime/loader/authRefresh')
+    const refreshed = await refreshAccessToken()
+    if (refreshed) {
+      res = await send(resolvedName, payload, getStoredAuthSession()?.accessToken ?? '')
+    }
   }
 
-  const result = await app.callFunction({
-    name: resolvedName,
-    data: {
-      ...payload,
-      context: {
-        accessToken,
-        clientIp: session?.clientInfo?.clientIp || '',
-        userAgent: session?.clientInfo?.userAgent || '',
-      },
-    },
-  })
-
-  const res = result?.result as ApiResponse<TResult>
   maybeNotifyAuthExpired(resolvedName, res)
   return res
 }

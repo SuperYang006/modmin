@@ -9,6 +9,7 @@ const COLLECTION_NAMES = [
   'modmin_sessions',
   'modmin_menu_groups',
   'modmin_audit_logs',
+  'modmin_import_export_jobs',
   'modmin_webhooks',
   'modmin_webhook_deliveries',
 ]

@@ -237,7 +237,7 @@ export function ConfigPage() {
         }
       />
       <PanelCard noPadding className="config-model-page">
-        {error ? <Alert type="error" showIcon message={error} style={{ margin: '16px 16px 0' }} /> : null}
+        {error ? <Alert type="error" showIcon title={error} style={{ margin: '16px 16px 0' }} /> : null}
 
         <div className="config-model-table-toolbar" style={{ padding: '16px 16px 0' }}>
           <div className="config-model-table-toolbar-main">

@@ -282,7 +282,7 @@ export function AdminUserManagementPage() {
       <Drawer
         title={editingItem ? '编辑用户' : '新建用户'}
         open={drawerOpen}
-        width={480}
+        size={480}
         onClose={() => setDrawerOpen(false)}
         footer={
           <Space style={{ justifyContent: 'flex-end', width: '100%' }}>

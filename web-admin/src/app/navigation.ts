@@ -3,10 +3,14 @@ import {
   ApiOutlined,
   AuditOutlined,
   DatabaseOutlined,
+  ExportOutlined,
   FolderOpenOutlined,
+  HistoryOutlined,
+  ImportOutlined,
   PlusSquareOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
+  SwapOutlined,
   TeamOutlined,
   UserSwitchOutlined,
 } from '@ant-design/icons'
@@ -109,6 +113,31 @@ export const configNavTree: StaticNavTreeItem[] = [
     ],
   },
   {
+    key: 'config-data-tools',
+    label: '数据导入导出',
+    icon: SwapOutlined,
+    children: [
+      {
+        key: 'config-data-export',
+        label: '数据导出',
+        to: '/config/data-export',
+        icon: ExportOutlined,
+      },
+      {
+        key: 'config-data-import',
+        label: '数据导入',
+        to: '/config/data-import',
+        icon: ImportOutlined,
+      },
+      {
+        key: 'config-import-export-history',
+        label: '任务记录',
+        to: '/config/import-export-history',
+        icon: HistoryOutlined,
+      },
+    ],
+  },
+  {
     key: 'config-audit-integration',
     label: '审计与集成',
     icon: AuditOutlined,
@@ -189,6 +218,18 @@ export function resolveBreadcrumbs(
 
   if (pathname === '/config/audit-logs') {
     return [{ label: '系统配置' }, { label: '审计与集成' }, { label: '操作日志' }]
+  }
+
+  if (pathname === '/config/import-export' || pathname === '/config/data-export') {
+    return [{ label: '系统配置' }, { label: '数据导入导出' }, { label: '数据导出' }]
+  }
+
+  if (pathname === '/config/data-import') {
+    return [{ label: '系统配置' }, { label: '数据导入导出' }, { label: '数据导入' }]
+  }
+
+  if (pathname === '/config/import-export-history') {
+    return [{ label: '系统配置' }, { label: '数据导入导出' }, { label: '任务记录' }]
   }
 
   if (pathname === '/config/webhooks') {

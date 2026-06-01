@@ -49,12 +49,12 @@ export function RelationDetailTrigger(props: RelationDetailTriggerProps) {
         title={title}
         footer={null}
         onCancel={() => setOpen(false)}
-        destroyOnClose
+        destroyOnHidden
         centered
         width={isMany ? 680 : 640}
         styles={{ body: { maxHeight: '70vh', overflow: 'auto' } }}
       >
-        <Space direction="vertical" size={12} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={12} style={{ width: '100%' }}>
           {records.map((item, index) => {
             const keys = Array.from(new Set(item.displayFields.filter(Boolean)))
             return (

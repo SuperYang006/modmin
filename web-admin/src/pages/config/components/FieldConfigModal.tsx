@@ -167,12 +167,12 @@ export function FieldConfigModal(props: FieldConfigModalProps) {
       cancelText="取消"
       width={820}
       className="field-config-modal"
-      maskClosable={false}
+      mask={{ closable: false }}
       keyboard={false}
     >
       <div className="field-config-modal-scroll">
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
-          {props.error ? <Alert type="error" showIcon message={props.error} /> : null}
+        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
+          {props.error ? <Alert type="error" showIcon title={props.error} /> : null}
 
         <Row gutter={16}>
           <Col xs={24} md={12}>
@@ -192,7 +192,7 @@ export function FieldConfigModal(props: FieldConfigModalProps) {
                             title: fieldTypeUsageGuide.title,
                             width: 560,
                             content: (
-                              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                              <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                                 <Typography.Paragraph style={{ marginBottom: 0 }}>
                                   {fieldTypeUsageGuide.summary}
                                 </Typography.Paragraph>
@@ -238,7 +238,7 @@ export function FieldConfigModal(props: FieldConfigModalProps) {
                 <Alert
                   type="warning"
                   showIcon
-                  message={`字段名 ${props.state.key.trim()} 为系统保留字段，不能用于业务字段`}
+                  title={`字段名 ${props.state.key.trim()} 为系统保留字段，不能用于业务字段`}
                   style={{ marginTop: -8 }}
                 />
               ) : null}
@@ -318,7 +318,7 @@ export function FieldConfigModal(props: FieldConfigModalProps) {
                       }
                     />
                   ) : LOCATION_TYPES.includes(props.state.type) ? (
-                    <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                       <Row gutter={12}>
                         <Col span={12}>
                           <Input
@@ -821,7 +821,7 @@ export function FieldConfigModal(props: FieldConfigModalProps) {
               </Col>
             </Row>
             {props.state.relationModelCollections.length > 0 ? (
-              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                 {props.state.relationModelCollections.map((collection) => (
                   <Card
                     key={collection}
@@ -956,7 +956,7 @@ export function FieldConfigModal(props: FieldConfigModalProps) {
                 />
               </Form.Item>
             </Form>
-            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={12} style={{ width: '100%' }}>
               {props.state.enumOptions.map((option, optionIndex) => (
                 <Space key={`enum-option-${optionIndex}`} align="start" className="field-config-enum-row">
                   <Input

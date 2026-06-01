@@ -249,7 +249,7 @@ export function MenuGroupManagementPage() {
       <Drawer
         title={editingItem ? '编辑菜单分组' : '新建菜单分组'}
         open={drawerOpen}
-        width={480}
+        size={480}
         onClose={() => setDrawerOpen(false)}
         footer={
           <Space style={{ justifyContent: 'flex-end', width: '100%' }}>

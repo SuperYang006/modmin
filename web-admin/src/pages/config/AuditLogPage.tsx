@@ -13,6 +13,9 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   'record.create': '创建记录',
   'record.update': '更新记录',
   'record.delete': '删除记录',
+  'data_export.create': '创建导出任务',
+  'data_import.preview': '导入预检',
+  'data_import.execute': '执行导入',
   'schema.create': '创建模型',
   'schema.update': '更新模型',
   'schema.delete': '删除模型',
@@ -36,6 +39,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 const RESOURCE_TYPE_LABELS: Record<string, string> = {
   auth: '登录认证',
   record: '业务记录',
+  import_export_job: '导入导出任务',
   schema: '数据模型',
   role: '角色',
   user: '后台用户',
@@ -50,6 +54,9 @@ const EVENT_TYPE_OPTIONS = [
   'record.create',
   'record.update',
   'record.delete',
+  'data_export.create',
+  'data_import.preview',
+  'data_import.execute',
   'webhook.create',
   'webhook.update',
   'webhook.delete',
@@ -57,7 +64,7 @@ const EVENT_TYPE_OPTIONS = [
 ]
   .map((value) => ({ label: EVENT_TYPE_LABELS[value] || value, value }))
 
-const RESOURCE_TYPE_OPTIONS = ['auth', 'record', 'schema', 'role', 'user', 'menuGroup', 'menu', 'webhook']
+const RESOURCE_TYPE_OPTIONS = ['auth', 'record', 'import_export_job', 'schema', 'role', 'user', 'menuGroup', 'menu', 'webhook']
   .map((value) => ({ label: RESOURCE_TYPE_LABELS[value] || value, value }))
 
 const ROLE_CODE_LABELS: Record<string, string> = {
@@ -449,9 +456,9 @@ export function AuditLogPage() {
         />
       </PanelCard>
 
-      <Drawer title="日志详情" open={drawerOpen} width={760} onClose={() => setDrawerOpen(false)} loading={detailLoading}>
+      <Drawer title="日志详情" open={drawerOpen} size={760} onClose={() => setDrawerOpen(false)} loading={detailLoading}>
         {detail ? (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={16} style={{ width: '100%' }}>
             <Descriptions bordered size="small" column={2}>
               <Descriptions.Item label="事件">{getEventTypeLabel(detail.eventType)}</Descriptions.Item>
               <Descriptions.Item label="事件编码">{detail.eventType}</Descriptions.Item>
@@ -478,7 +485,7 @@ export function AuditLogPage() {
                 <h4>原始数据</h4>
                 <span>用于查看完整操作前后快照</span>
               </div>
-              <Space direction="vertical" size={16} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={16} style={{ width: '100%' }}>
                 <JsonBlock title="操作前数据" value={detail.before} onOpenPreview={handleOpenPreview} />
                 <JsonBlock title="操作后数据" value={detail.after} onOpenPreview={handleOpenPreview} />
               </Space>

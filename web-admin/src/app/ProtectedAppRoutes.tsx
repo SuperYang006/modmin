@@ -1,23 +1,36 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState, type JSX } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthGuard } from '@/components/auth/AuthGuard'
 import { AdminLayout } from '@/components/layout/AdminLayout'
-import { DashboardPage } from '@/pages/dashboard/DashboardPage'
-import { GeneratedCrudPage } from '@/pages/generated/GeneratedCrudPage'
-import { GeneratedCrudFormPage } from '@/pages/generated/GeneratedCrudFormPage'
-import { ConfigPage } from '@/pages/config/ConfigPage'
-import { ModelCreatePage } from '@/pages/config/ModelCreatePage'
-import { ModelEditPage } from '@/pages/config/ModelEditPage'
-import { MenuGroupManagementPage } from '@/pages/config/MenuGroupManagementPage'
-import { RoleManagementPage } from '@/pages/config/RoleManagementPage'
-import { AdminUserManagementPage } from '@/pages/config/AdminUserManagementPage'
-import { AuditLogPage } from '@/pages/config/AuditLogPage'
-import { WebhookManagementPage } from '@/pages/config/WebhookManagementPage'
-import { WebhookDeliveriesPage } from '@/pages/config/WebhookDeliveriesPage'
-import { NoAccessPage } from '@/pages/no-access/NoAccessPage'
 import { getGeneratedPagePath } from '@/app/navigation'
 import { listCollectionSchemas } from '@/runtime/loader/listCollectionSchemas'
 import { usePermission } from '@/context/PermissionContext'
+
+const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage').then((module) => ({ default: module.DashboardPage })))
+const GeneratedCrudPage = lazy(() => import('@/pages/generated/GeneratedCrudPage').then((module) => ({ default: module.GeneratedCrudPage })))
+const GeneratedCrudFormPage = lazy(() => import('@/pages/generated/GeneratedCrudFormPage').then((module) => ({ default: module.GeneratedCrudFormPage })))
+const ConfigPage = lazy(() => import('@/pages/config/ConfigPage').then((module) => ({ default: module.ConfigPage })))
+const ModelCreatePage = lazy(() => import('@/pages/config/ModelCreatePage').then((module) => ({ default: module.ModelCreatePage })))
+const ModelEditPage = lazy(() => import('@/pages/config/ModelEditPage').then((module) => ({ default: module.ModelEditPage })))
+const MenuGroupManagementPage = lazy(() => import('@/pages/config/MenuGroupManagementPage').then((module) => ({ default: module.MenuGroupManagementPage })))
+const RoleManagementPage = lazy(() => import('@/pages/config/RoleManagementPage').then((module) => ({ default: module.RoleManagementPage })))
+const AdminUserManagementPage = lazy(() => import('@/pages/config/AdminUserManagementPage').then((module) => ({ default: module.AdminUserManagementPage })))
+const AuditLogPage = lazy(() => import('@/pages/config/AuditLogPage').then((module) => ({ default: module.AuditLogPage })))
+const WebhookManagementPage = lazy(() => import('@/pages/config/WebhookManagementPage').then((module) => ({ default: module.WebhookManagementPage })))
+const WebhookDeliveriesPage = lazy(() => import('@/pages/config/WebhookDeliveriesPage').then((module) => ({ default: module.WebhookDeliveriesPage })))
+const DataExportPage = lazy(() => import('@/pages/config/DataExportPage').then((module) => ({ default: module.DataExportPage })))
+const DataImportPage = lazy(() => import('@/pages/config/DataImportPage').then((module) => ({ default: module.DataImportPage })))
+const ImportExportHistoryPage = lazy(() => import('@/pages/config/ImportExportHistoryPage').then((module) => ({ default: module.ImportExportHistoryPage })))
+const ImportExportPage = lazy(() => import('@/pages/config/ImportExportPage').then((module) => ({ default: module.ImportExportPage })))
+const NoAccessPage = lazy(() => import('@/pages/no-access/NoAccessPage').then((module) => ({ default: module.NoAccessPage })))
+
+function RouteFallback() {
+  return <div style={{ padding: 40, color: '#888' }}>正在加载...</div>
+}
+
+function LazyRoute({ children }: { children: JSX.Element }) {
+  return <Suspense fallback={<RouteFallback />}>{children}</Suspense>
+}
 
 function SuperAdminGuard({ children }: { children: JSX.Element }) {
   const { isSuperAdmin } = usePermission()
@@ -41,6 +54,16 @@ function LandingRedirect() {
             setTarget(getGeneratedPagePath(accessible[0].pageCode))
             return
           }
+        }
+        const canAccessDataExport = Object.values(permMap).some((permission) => Boolean(permission.canList))
+        if (canAccessDataExport) {
+          setTarget('/config/data-export')
+          return
+        }
+        const canAccessDataImport = Object.values(permMap).some((permission) => Boolean(permission.canCreate || permission.canUpdate))
+        if (canAccessDataImport) {
+          setTarget('/config/data-import')
+          return
         }
         setTarget('/no-access')
       })
@@ -68,20 +91,24 @@ export default function ProtectedAppRoutes() {
         }
       >
         <Route index element={<LandingRedirect />} />
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="no-access" element={<NoAccessPage />} />
-        <Route path="generated/:pageCode" element={<GeneratedCrudPage />} />
-        <Route path="generated/:pageCode/create" element={<GeneratedCrudFormPage />} />
-        <Route path="generated/:pageCode/:recordId/edit" element={<GeneratedCrudFormPage />} />
-        <Route path="config/models" element={<SuperAdminGuard><ConfigPage /></SuperAdminGuard>} />
-        <Route path="config/models/create" element={<SuperAdminGuard><ModelCreatePage /></SuperAdminGuard>} />
-        <Route path="config/models/:collectionName/edit" element={<SuperAdminGuard><ModelEditPage /></SuperAdminGuard>} />
-        <Route path="config/menu-groups" element={<SuperAdminGuard><MenuGroupManagementPage /></SuperAdminGuard>} />
-        <Route path="config/roles" element={<SuperAdminGuard><RoleManagementPage /></SuperAdminGuard>} />
-        <Route path="config/admin-users" element={<SuperAdminGuard><AdminUserManagementPage /></SuperAdminGuard>} />
-        <Route path="config/audit-logs" element={<SuperAdminGuard><AuditLogPage /></SuperAdminGuard>} />
-        <Route path="config/webhooks" element={<SuperAdminGuard><WebhookManagementPage /></SuperAdminGuard>} />
-        <Route path="config/webhook-deliveries" element={<SuperAdminGuard><WebhookDeliveriesPage /></SuperAdminGuard>} />
+        <Route path="dashboard" element={<LazyRoute><DashboardPage /></LazyRoute>} />
+        <Route path="no-access" element={<LazyRoute><NoAccessPage /></LazyRoute>} />
+        <Route path="generated/:pageCode" element={<LazyRoute><GeneratedCrudPage /></LazyRoute>} />
+        <Route path="generated/:pageCode/create" element={<LazyRoute><GeneratedCrudFormPage /></LazyRoute>} />
+        <Route path="generated/:pageCode/:recordId/edit" element={<LazyRoute><GeneratedCrudFormPage /></LazyRoute>} />
+        <Route path="config/models" element={<SuperAdminGuard><LazyRoute><ConfigPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/models/create" element={<SuperAdminGuard><LazyRoute><ModelCreatePage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/models/:collectionName/edit" element={<SuperAdminGuard><LazyRoute><ModelEditPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/menu-groups" element={<SuperAdminGuard><LazyRoute><MenuGroupManagementPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/roles" element={<SuperAdminGuard><LazyRoute><RoleManagementPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/admin-users" element={<SuperAdminGuard><LazyRoute><AdminUserManagementPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/import-export" element={<LazyRoute><ImportExportPage /></LazyRoute>} />
+        <Route path="config/data-export" element={<LazyRoute><DataExportPage /></LazyRoute>} />
+        <Route path="config/data-import" element={<LazyRoute><DataImportPage /></LazyRoute>} />
+        <Route path="config/import-export-history" element={<LazyRoute><ImportExportHistoryPage /></LazyRoute>} />
+        <Route path="config/audit-logs" element={<SuperAdminGuard><LazyRoute><AuditLogPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/webhooks" element={<SuperAdminGuard><LazyRoute><WebhookManagementPage /></LazyRoute></SuperAdminGuard>} />
+        <Route path="config/webhook-deliveries" element={<SuperAdminGuard><LazyRoute><WebhookDeliveriesPage /></LazyRoute></SuperAdminGuard>} />
       </Route>
     </Routes>
   )

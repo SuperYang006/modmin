@@ -1,7 +1,16 @@
 const fs = require('node:fs')
 const path = require('node:path')
 
-const FUNCTION_NAMES = ['modmin_auth', 'modmin_audit', 'modmin_crud', 'modmin_runtime', 'modmin_schema', 'modmin_system', 'modmin_webhook']
+const FUNCTION_NAMES = [
+  'modmin_auth',
+  'modmin_audit',
+  'modmin_crud',
+  'modmin_import_export',
+  'modmin_runtime',
+  'modmin_schema',
+  'modmin_system',
+  'modmin_webhook',
+]
 
 function buildCloudbaserc({ envId, jwtSecret, collectionPrefix = 'modmin_' }) {
   if (!envId) {

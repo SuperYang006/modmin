@@ -40,7 +40,7 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
           <Alert
             type="error"
             showIcon
-            message={submitError}
+            title={submitError}
             style={{ marginBottom: 16 }}
           />
         ) : null}
@@ -112,16 +112,16 @@ export function RuntimeRecordForm(props: RuntimeRecordFormProps) {
         </div>
       }
       onClose={onClose}
-      maskClosable={!submitting}
+      mask={{ closable: !submitting }}
       keyboard={!submitting}
-      width={760}
-      destroyOnClose
+      size={760}
+      destroyOnHidden
       placement="right"
       styles={{
         body: { padding: 0, overflow: 'hidden' },
       }}
       extra={
-        <Tag color={mode === 'create' ? 'processing' : 'blue'} bordered={false}>
+        <Tag color={mode === 'create' ? 'processing' : 'blue'} variant="filled">
           {mode === 'create' ? '新建模式' : '编辑模式'}
         </Tag>
       }
@@ -169,9 +169,9 @@ function renderFieldItem(
         }}
       >
         <span style={{ fontSize: 14, fontWeight: 500 }}>{field.label}</span>
-        {!compact && field.required === true ? <Tag color="error" bordered={false}>必填</Tag> : null}
-        {itemCountTag ? <Tag color="processing" bordered={false}>{itemCountTag}</Tag> : null}
-        {fileSizeTag ? <Tag color="processing" bordered={false}>{fileSizeTag}</Tag> : null}
+        {!compact && field.required === true ? <Tag color="error" variant="filled">必填</Tag> : null}
+        {itemCountTag ? <Tag color="processing" variant="filled">{itemCountTag}</Tag> : null}
+        {fileSizeTag ? <Tag color="processing" variant="filled">{fileSizeTag}</Tag> : null}
         {!compact ? renderFormFieldTitleAction(field, values[field.fieldKey] ?? '') : null}
         {!compact && isSystemReservedField(field.fieldKey) ? <Tag color="default">系统保留</Tag> : null}
         {configuredReadonly ? <Tag color="blue">{compact ? '只读' : '不可编辑'}</Tag> : null}

@@ -87,7 +87,7 @@ export function PageTabs({ collectionEntries }: PageTabsProps) {
 
   // 当前用户的落地页
   const landingPath = useMemo(() => {
-    if (isSuperAdmin) return '/config/models'
+    if (isSuperAdmin) return '/dashboard'
     const first = collectionEntries.find((e) => permMap[e.collectionName]?.canList === true)
     return first ? getGeneratedPagePath(first.pageCode) : NO_ACCESS_PATH
   }, [isSuperAdmin, permMap, collectionEntries])

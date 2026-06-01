@@ -5,9 +5,13 @@ import {
   AppstoreOutlined,
   DashboardOutlined,
   DownOutlined,
+  ExportOutlined,
   FolderOpenOutlined,
+  HistoryOutlined,
+  ImportOutlined,
   RightOutlined,
   SettingOutlined,
+  SwapOutlined,
 } from '@ant-design/icons'
 import { devNavTree } from '@/app/devOnlyNavigation'
 import { configNavTree, getGeneratedPagePath } from '@/app/navigation'
@@ -36,6 +40,12 @@ export function SidebarNavigation({ collections, menuGroups }: SidebarNavigation
     () => isSuperAdmin ? collections : collections.filter((c) => permMap[c.collectionName]?.canList === true),
     [collections, isSuperAdmin, permMap],
   )
+  const canAccessImportExport = isSuperAdmin || collections.some((item) => {
+    const permission = permMap[item.collectionName]
+    return Boolean(permission?.canList || permission?.canCreate || permission?.canUpdate)
+  }) || Object.values(permMap).some((permission) => Boolean(permission.canList || permission.canCreate || permission.canUpdate))
+  const canAccessDataExport = isSuperAdmin || collections.some((item) => Boolean(permMap[item.collectionName]?.canList)) || Object.values(permMap).some((permission) => Boolean(permission.canList))
+  const canAccessDataImport = isSuperAdmin || collections.some((item) => Boolean(permMap[item.collectionName]?.canCreate || permMap[item.collectionName]?.canUpdate)) || Object.values(permMap).some((permission) => Boolean(permission.canCreate || permission.canUpdate))
 
   const configMenuTree: SidebarMenuNode[] = useMemo(
     () =>
@@ -173,7 +183,47 @@ export function SidebarNavigation({ collections, menuGroups }: SidebarNavigation
               })),
             },
           ]
-        : []),
+        : canAccessImportExport
+          ? [
+              {
+                key: 'system',
+                icon: <SettingOutlined />,
+                label: '系统配置',
+                children: [
+                  {
+                    key: 'config_group_import_export',
+                    icon: <SwapOutlined />,
+                    label: '数据导入导出',
+                    children: [
+                      ...(canAccessDataExport
+                        ? [
+                            {
+                              key: '/config/data-export',
+                              icon: <ExportOutlined />,
+                              label: '数据导出',
+                            },
+                          ]
+                        : []),
+                      ...(canAccessDataImport
+                        ? [
+                            {
+                              key: '/config/data-import',
+                              icon: <ImportOutlined />,
+                              label: '数据导入',
+                            },
+                          ]
+                        : []),
+                      {
+                        key: '/config/import-export-history',
+                        icon: <HistoryOutlined />,
+                        label: '任务记录',
+                      },
+                    ],
+                  },
+                ],
+              },
+            ]
+          : []),
       ...(businessMenuTree.length > 0
         ? businessMenuTree.map((node) => {
             const NodeIcon = node.icon
@@ -193,7 +243,7 @@ export function SidebarNavigation({ collections, menuGroups }: SidebarNavigation
           })
         : []),
     ],
-    [configMenuTree, businessMenuTree],
+    [canAccessDataExport, canAccessDataImport, canAccessImportExport, configMenuTree, businessMenuTree, isSuperAdmin],
   )
 
   const selectedKeys = [location.pathname]

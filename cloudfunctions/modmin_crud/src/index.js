@@ -1,7 +1,7 @@
 const cloudbase = require('@cloudbase/node-sdk')
 const { parseAccessToken, isSuperAdmin, pickOperator } = require('./auth.js')
 const { success, fail, resolveFriendlyErrorMessage } = require('./response.js')
-const { createQueryHelpers } = require('./query.js')
+const { createQueryHelpers } = require('../shared/query-helpers.js')
 const { createModelPermissionHelpers } = require('./model-permission.js')
 const { createRecordHandlers } = require('./records.js')
 const { createAuditLogger } = require('../shared/audit-log.js')
@@ -15,7 +15,7 @@ const {
   validateAndNormalizeFieldValue,
   stripSystemFields,
   rejectReadonlyFieldChanges,
-} = require('./fields.js')
+} = require('../shared/crud-fields.js')
 
 const app = cloudbase.init({
   env: cloudbase.SYMBOL_CURRENT_ENV,

@@ -66,7 +66,7 @@ export function RichTextFieldEditor(props: RichTextFieldEditorProps) {
       <Drawer
         title={props.fieldLabel}
         open={open}
-        width="min(960px, 92vw)"
+        size="min(960px, 92vw)"
         destroyOnHidden={false}
         className="runtime-richtext-drawer"
         onClose={closeEditor}

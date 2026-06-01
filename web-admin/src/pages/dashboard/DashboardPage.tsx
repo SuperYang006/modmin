@@ -18,7 +18,7 @@ export function DashboardPage() {
 
   return (
     <PageShell className="dashboard-page">
-      {error ? <Alert type="error" showIcon message={error} /> : null}
+      {error ? <Alert type="error" showIcon title={error} /> : null}
 
       <DashboardHeader isSuperAdmin={isSuperAdmin} onNavigate={handleNavigate} />
 

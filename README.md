@@ -24,8 +24,19 @@ Modmin（中文读法接近摩德敏,自造词来自于model + Admin）是一个
 1. 模型定义与字段配置
 2. 基于模型生成 CRUD 页面
 3. 后台账号、角色与权限管理
-4. CloudBase 云函数统一承载后端逻辑
-5. 审计日志与 Webhook 基础能力
+4. 业务数据导入导出（`xlsx` / `csv` / `json`，含预检、列映射、任务记录）
+5. CloudBase 云函数统一承载后端逻辑
+6. 审计日志与 Webhook 基础能力
+
+## 数据导入导出
+
+当前已提供完整的业务数据导入导出链路：
+
+1. 数据导出页支持按字段、格式、筛选条件导出业务数据
+2. 数据导入页支持模板下载、预检、自动列映射、手动列映射、确认执行
+3. 当预检存在错误或冲突时，默认不允许确认导入；勾选“跳过错误和冲突行”后可继续导入有效数据
+4. 导入导出任务会写入 `modmin_import_export_jobs`，状态支持 `success`、`partialSuccess`、`failed`
+5. 历史任务页支持按任务类型、业务模型、状态、格式做真实分页查询
 
 ## 适用场景
 
@@ -135,8 +146,8 @@ cd web-admin && npm run dev
 
 一键部署会自动完成以下全部步骤：
 
-- ✅ 创建 9 个系统集合（`modmin_collections`、`modmin_admin_users` 等）
-- ✅ 部署 7 个云函数 + 注入环境变量（含 `MODMIN_JWT_SECRET`）
+- ✅ 创建 10 个系统集合（`modmin_collections`、`modmin_admin_users`、`modmin_import_export_jobs` 等）
+- ✅ 部署 8 个云函数 + 注入环境变量（含 `MODMIN_JWT_SECRET`）
 - ✅ 构建前端并上传到 CloudBase 静态托管
 - ✅ 创建初始超级管理员账号
 - ✅ 补齐内置角色（`role_super_admin`、`role_operator`）

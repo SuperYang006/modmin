@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { getE2eAdminCredentials } from './e2eCredentials'
 
 test.describe('登录页面', () => {
   test.beforeEach(async ({ page }) => {
@@ -31,8 +32,9 @@ test.describe('登录页面', () => {
   })
 
   test('正确密码登录成功跳转到控制台', async ({ page }) => {
-    await page.getByPlaceholder('请输入账号').fill('admin')
-    await page.getByPlaceholder('请输入密码').fill('admin123...')
+    const { userName, password } = getE2eAdminCredentials()
+    await page.getByPlaceholder('请输入账号').fill(userName)
+    await page.getByPlaceholder('请输入密码').fill(password)
     await page.getByRole('button', { name: /登\s*录/ }).click()
 
     await expect(page).toHaveURL(/\#\/dashboard/, { timeout: 10_000 })

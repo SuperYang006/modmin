@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { getStoredAuthSession, isAccessTokenExpired } from '@/auth/session'
+import { getStoredAuthSession } from '@/auth/session'
 import { BrandLogo } from '@/components/common/BrandLogo'
 import { restoreTcbLogin, validateAdminSession } from '@/runtime/loader/auth'
 import { getMyPermissions } from '@/runtime/loader/getMyPermissions'
@@ -19,7 +19,7 @@ export function AuthGuard(props: { children: JSX.Element }) {
       try {
         const session = getStoredAuthSession()
 
-        if (!session || isAccessTokenExpired(session)) {
+        if (!session) {
           setAllowed(false)
           setChecking(false)
           return

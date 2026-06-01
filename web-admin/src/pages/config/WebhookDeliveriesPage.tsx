@@ -153,7 +153,7 @@ export function WebhookDeliveriesPage() {
         extra={<Button onClick={() => navigate('/config/webhooks')}>返回 Webhook 配置</Button>}
       />
       <PanelCard>
-        {error ? <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} /> : null}
+        {error ? <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} /> : null}
         <Form form={form} layout="vertical" className="audit-log-filter-form" onFinish={(values) => handleSearch(values)}>
           <div className="audit-log-filter-grid">
             <Form.Item name="webhookId" label="Webhook">
@@ -215,9 +215,9 @@ export function WebhookDeliveriesPage() {
         )}
       </PanelCard>
 
-      <Drawer title="投递详情" open={!!detail} width={860} onClose={() => setDetail(null)}>
+      <Drawer title="投递详情" open={!!detail} size={860} onClose={() => setDetail(null)}>
         {detail ? (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={16} style={{ width: '100%' }}>
             <div className="audit-log-json-block">
               <div className="audit-log-json-block-head">
                 <h4>基础信息</h4>

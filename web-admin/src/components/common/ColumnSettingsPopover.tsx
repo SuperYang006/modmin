@@ -164,7 +164,7 @@ export function ColumnSettingsPopover({
       content={content}
       trigger="click"
       placement="bottomRight"
-      overlayClassName="runtime-col-settings-popover"
+      classNames={{ root: 'runtime-col-settings-popover' }}
     >
       {children}
     </Popover>

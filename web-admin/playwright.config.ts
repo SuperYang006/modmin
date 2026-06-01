@@ -1,6 +1,35 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
 
 const authFile = 'tests/.auth/user.json'
+
+// 从 .env.e2e.local 读取 e2e 凭证（仅本地，已 gitignore）。已存在的环境变量优先，
+// 这样命令行内联 E2E_ADMIN_PASSWORD=xxx 仍可覆盖文件值，CI 也无需该文件。
+function loadE2eEnv() {
+  try {
+    const content = readFileSync('.env.e2e.local', 'utf8')
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#')) continue
+      const eq = trimmed.indexOf('=')
+      if (eq === -1) continue
+      const key = trimmed.slice(0, eq).trim()
+      if (process.env[key] !== undefined) continue
+      let value = trimmed.slice(eq + 1).trim()
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1)
+      }
+      process.env[key] = value
+    }
+  } catch {
+    // 文件不存在时忽略，凭证可由命令行环境变量提供
+  }
+}
+
+loadE2eEnv()
 
 export default defineConfig({
   testDir: './tests',

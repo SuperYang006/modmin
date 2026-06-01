@@ -42,7 +42,7 @@ export function AppearanceSettings() {
       <Drawer
         title="外观设置"
         placement="right"
-        width={360}
+        size={360}
         open={open}
         onClose={() => setOpen(false)}
         className="appearance-settings-drawer"

@@ -227,9 +227,9 @@ export function RolePermissionDrawer({ roleCode, roleName, open, onClose }: Prop
         </Space>
       }
       open={open}
-      width={760}
+      size={760}
       onClose={handleClose}
-      maskClosable={dirtyCount === 0}
+      mask={{ closable: dirtyCount === 0 }}
       footer={
         <div className="role-perm-footer">
           <span className="role-perm-footer-meta">

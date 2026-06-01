@@ -21,6 +21,7 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
-    "@uiw/react-md-editor": "^4.1.1"
+    "@uiw/react-md-editor": "^4.1.1",
+    "xlsx": "^0.18.5"
   }
 }
